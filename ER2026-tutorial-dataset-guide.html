@@ -1,0 +1,411 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ER 2026 Tutorial Dataset</title>
+<style>
+:root{--bg:#fbfaf7;--fg:#1d1d1f;--muted:#5d5d66;--card:#fff;--line:#e3e0d8;--accent:#2f6b4f;--warn-bg:#fff6e0;--warn:#8a5a00;--ok-bg:#e9f5ee;--ok:#215c3e;--code-bg:#f3f1ec;--kw:#7a3e9d;--str:#a14a1a;--cm:#7b7b85}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#16171a;--fg:#e8e6e1;--muted:#a3a3ad;--card:#1f2024;--line:#33343a;--accent:#7fc4a0;--warn-bg:#3a2e14;--warn:#f0c46a;--ok-bg:#183126;--ok:#9fdcb9;--code-bg:#24252a;--kw:#d29bf0;--str:#f0a477;--cm:#8d8d97}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif}
+.wrap{display:grid;grid-template-columns:240px minmax(0,1fr);max-width:1180px;margin:0 auto;gap:32px;padding:0 16px}
+nav{position:sticky;top:0;align-self:start;max-height:100vh;overflow:auto;padding:28px 0;font-size:14px}
+nav a{display:block;color:var(--muted);text-decoration:none;padding:3px 0}
+nav a:hover{color:var(--accent)}
+main{padding:28px 0 80px;min-width:0}
+h1{font-size:30px;line-height:1.2;margin:0 0 6px}
+h2{font-size:22px;margin:44px 0 10px;padding-top:10px;border-top:1px solid var(--line)}
+h3{font-size:17px;margin:26px 0 8px}
+.sub{color:var(--muted);margin:0 0 20px}
+pre{background:var(--code-bg);border:1px solid var(--line);border-radius:8px;padding:12px 14px;overflow-x:auto;font:13px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.92em}
+.k{color:var(--kw);font-weight:600}.s{color:var(--str)}.c{color:var(--cm);font-style:italic}
+table{border-collapse:collapse;width:100%;font-size:14px;margin:10px 0;display:block;overflow-x:auto}
+th,td{border:1px solid var(--line);padding:7px 9px;text-align:left;vertical-align:top}
+th{background:var(--code-bg)}
+.box{border-radius:8px;padding:12px 14px;margin:14px 0;border:1px solid var(--line);background:var(--card)}
+.warn{background:var(--warn-bg);border-color:transparent}.warn>b:first-child{color:var(--warn)}
+.ok{background:var(--ok-bg);border-color:transparent}.ok>b:first-child{color:var(--ok)}
+.tag{display:inline-block;font-size:12px;padding:1px 7px;border-radius:10px;border:1px solid var(--line);color:var(--muted);margin-left:6px;vertical-align:middle;font-weight:400}
+.tag.t{color:var(--ok);border-color:var(--ok)}.tag.u{color:var(--warn);border-color:var(--warn)}
+.chain{font-family:ui-monospace,Menlo,monospace;font-size:14px;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:12px;overflow-x:auto;white-space:nowrap}
+.step{border-left:3px solid var(--accent);padding:2px 0 2px 14px;margin:18px 0}
+.step h3{margin-top:0}
+blockquote{margin:10px 0;padding:6px 14px;border-left:3px solid var(--line);color:var(--muted);font-style:italic}
+ul,ol{padding-left:22px}
+@media (max-width:800px){.wrap{grid-template-columns:1fr}nav{position:static;max-height:none;padding:16px 0 0;border-bottom:1px solid var(--line)}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<nav>
+  <b>Contents</b>
+  <a href="#tldr">1. Summary</a>
+  <a href="#options">2. Dataset options</a>
+  <a href="#trase">3. The recommended data</a>
+  <a href="#modelling">4. From CSV to model</a>
+  <a href="#schema">5. Schema</a>
+  <a href="#load">6. Loading</a>
+  <a href="#queries">7. Queries</a>
+  <a href="#teach">8. Teaching plan (90 min)</a>
+  <a href="#extend">9. Extensions</a>
+  <a href="#bugs">10. TypeDB issues found</a>
+  <a href="#risks">11. Risks &amp; to-dos</a>
+</nav>
+<main>
+<h1>ER 2026 Tutorial Dataset</h1>
+<p class="sub">Building Executable ER Models · Wed 7 Oct · dataset choice, the modelling walkthrough, a tested schema, and an incremental teaching plan. Revised 5 Oct 2026, with the ownership model taken from the Trase data dictionary.</p>
+
+<div class="box"><b>Legend.</b> <span class="tag t">tested</span> means the item was run against the local TypeDB 3.x server on the real subset; its numbers were also checked independently in Python where noted. <span class="tag u">untested</span> means it was written to the 3.x grammar but not executed.</div>
+
+<h2 id="tldr">1. Summary</h2>
+<p>Use <b>Trase's Indonesia palm oil supply-chain data (v1.2.5, CC BY 4.0)</b>, cut down to <b>2022 flows from East Kalimantan to EU countries: 824 rows</b>. Each row is a genuine n-ary fact:</p>
+<div class="chain">kabupaten (district) → mill → [refinery] → exporter → port → importer → EU country · commodity · volume · FOB value · 10-yr deforestation exposure</div>
+<ul>
+  <li><b>N-ary:</b> 8 role players per flow. Splitting a flow into binary hops gives <b>348 mill→importer pairs where only 313 are real</b>. That's the connection trap, shown on real data. <span class="tag t">tested</span></li>
+  <li><b>Subtyping:</b> <code>party</code> → company / facility → mill / refinery / port; <code>place</code> → country / province / kabupaten; <code>commodity</code> → crude / refined.</li>
+  <li><b>One kind of company, linked by recursive ownership.</b> The CSV seems to have four "group" columns. The data dictionary shows they all name a <i>parent company</i>, so there's one <code>company</code> type plus an <code>ownership</code> relation. This is the tutorial's best modelling moment (§4).</li>
+  <li><b>Roles, not subtypes:</b> FIRST RESOURCES controls parties in 4 different roles (mill, refinery, exporter, importer), so "exporter" can't be a subtype. <span class="tag t">tested</span></li>
+  <li><b>Executable:</b> the schema rejects a typed-wrong role player and a duplicate key at compile or write time, and missing data or a second parent at commit. <span class="tag t">tested</span></li>
+  <li><b>Headline numbers:</b> 193.7 kt, 9,368 ha of 10-year deforestation exposure, and 59% of flows have exposure above zero. Loads in 0.7 s.</li>
+</ul>
+
+<h2 id="options">2. Dataset options</h2>
+<table>
+<tr><th>Option</th><th>N-ary</th><th>Subtyping</th><th>Tier depth / recursion</th><th>Sustainability data</th><th>Verdict</th></tr>
+<tr><td><b>Trase Indonesia palm oil</b> (East Kalimantan → EU, 2022)</td><td>8 roles per flow</td><td>parties, places, commodities</td><td>Real tier 3; ownership hierarchy</td><td>Deforestation and emissions exposure per flow</td><td><b>Recommended</b></td></tr>
+<tr><td>Trase Brazil soy (MATOPIBA → EU, 2022; 596 rows)</td><td>6–7 roles</td><td>biome → state → municipality</td><td>No company chain 3 tiers deep; 60% of importers unknown</td><td>5-yr exposure; soy moratorium</td><td>Fallback</td></tr>
+<tr><td>Trase Côte d'Ivoire cocoa</td><td>Yes, with a cooperative tier</td><td>Some</td><td>Good cooperative tier</td><td>Exposure only for 2019–21</td><td>Not ideal</td></tr>
+<tr><td>Universal Mill List (2,093 mills)</td><td>No</td><td>Group → parent → mill</td><td>Ownership, 2 levels</td><td>RSPO certification</td><td>Enrichment only</td></tr>
+<tr><td>EUDR country risk list</td><td>No</td><td>No</td><td>No</td><td>Low/standard/high per country</td><td>Enrichment only</td></tr>
+<tr><td>Open Food Facts</td><td>No</td><td>Ingredient taxonomy</td><td>Real recursive ingredient trees</td><td>No supplier links</td><td>Optional curated top layer</td></tr>
+<tr><td>OCEL 2.0 order-management log</td><td>Qualified event–object links</td><td>Object types</td><td>Shallow</td><td>None; synthetic</td><td>Aside for process-mining people</td></tr>
+<tr><td>FAOSTAT, UN Comtrade, Open Supply Hub</td><td colspan="4">Country-to-country only (FAOSTAT); licence forbids redistribution (Comtrade); account required and mostly apparel (OSH)</td><td>Rejected</td></tr>
+</table>
+
+<h2 id="trase">3. The recommended data</h2>
+<ul>
+  <li><b>Source:</b> trase.earth → Open data → Indonesia palm oil v1.2.5. Direct zip download, no login. Citation: Benedict et al. 2024, doi:10.48650/X83N-7M36.</li>
+  <li><b>Subset file:</b> <code>palm_kaltim_eu_2022.csv</code> (in this folder). Filter used: <code>year=2022</code>, <code>province=KALIMANTAN TIMUR</code>, <code>economic_bloc=EUROPEAN UNION</code>, rows with UNKNOWN actors excluded.</li>
+  <li><b>Counts:</b> 7 kabupaten, 80 mills, 6 refineries, 4 ports, 51 distinct companies (exporters, importers and parents), 92 ownership links, 6 EU countries.</li>
+</ul>
+<div class="box warn"><b>Say this out loud:</b> Trase flows are <i>modelled</i> (SEI-PCS allocation), not observed shipments, and facility attribution comes from desk research by AidEnvironment and Auriga. Academics will ask, and saying it first earns credibility.</div>
+
+<h2 id="modelling">4. From CSV to model: the modelling walkthrough</h2>
+<p>This is the process Joshua followed. It works well on stage, because the audience goes through the same realisations.</p>
+
+<div class="step"><h3>Step 1 · Read the header and one row, and start writing types down</h3>
+<p>The first instinct is one entity type per column: Mill, MillGroup, Refinery, RefineryGroup, Exporter, ExporterGroup, Port, Importer, ImporterGroup, Country.</p></div>
+
+<div class="step"><h3>Step 2 · Get stuck: the same names appear in different columns</h3>
+<pre><span class="c"># mill                         mill_group              refinery</span>
+AGRI EASTBORNEO KENCANA         KENCANA AGRI            NOT REFINED
+NIAGA MAS GEMILANG              JC CHEMICAL             LDC EAST INDONESIA
+TAPIAN NADENGGAN (JAK LUAY)     SINAR MAS               SMART TBK (SURABAYA REFINERY)
+<span class="c"># refinery_group   exporter                                  exporter_group</span>
+NOT REFINED        SUMBER HIJAU UTAMA                        ROYAL GOLDEN EAGLE
+LOUIS DREYFUS      LDC EAST INDONESIA                        LOUIS DREYFUS
+SINAR MAS          SINAR MAS AGRO RESOURCES AND TECHNOLOGY   SINAR MAS</pre>
+<p>Measured on the subset:</p>
+<ul>
+<li><b>Refinery and exporter:</b> 3 names appear as both (<code>LDC EAST INDONESIA</code>, <code>KUTAI REFINERY NUSANTARA</code>, <code>ADHITYA SERAYAKORITA</code>). In 588 of the 824 rows the refinery name equals the exporter name.</li>
+<li><b>Groups and importers:</b> all 10 importer names also appear as group names.</li>
+<li><b>One group, four columns:</b> FIRST RESOURCES appears in all four group columns.</li>
+</ul>
+<p>The question is whether a matching name means the same thing. Not necessarily: a refinery is a plant, and an exporter is a legal entity.</p></div>
+
+<div class="step"><h3>Step 3 · Read the data dictionary</h3>
+<blockquote>exporter: Company, including subsidiaries, responsible for exporting the commodity<br>
+exporter_group: Corporate group responsible for exporting the commodity (groups the exporter column into parent companies where applicable)<br>
+mill_group: Corporate group which the mill belongs to …<br>
+refinery: … Facilities data obtained from AidEnvironment and Auriga's desk-based research</blockquote>
+<p>What can be inferred from it, checked against the data:</p>
+<ol>
+<li><b>A "group" is a parent company.</b> So there's one <code>company</code> type, and "group" is a role in <code>ownership(parent, subsidiary)</code>. Ownership is recursive. Each mill, refinery and exporter has exactly one group (checked), so <code>subsidiary</code> is at most one.</li>
+<li><b>"Where applicable" means the group falls back to the company's own name.</b> <code>importer == importer_group</code> in all 824 rows, so no parent was assigned to any importer. The loader must <b>not</b> create self-ownership; ORM would call that an irreflexive ring constraint.</li>
+<li><b>Exporter and importer are roles played by companies</b>, and they mean <i>responsible for</i> the trade. "Including subsidiaries" means each value is already a company aggregate.</li>
+<li><b>Facilities link straight to a parent; no operating company is given.</b> Linking a refinery to its same-named exporter would be inferred from names, so leave it out or label it as inferred.</li>
+<li><b>Facility data comes from research, not declarations</b>, which is a provenance hook (see §9).</li>
+<li><b>Mill group <code>UNKNOWN AFFILIATION</code> is a placeholder value</b> (5 mills). Treat it as having no parent.</li>
+</ol></div>
+
+<div class="step"><h3>Step 4 · The resulting model</h3>
+<table>
+<tr><th>Candidate</th><th>Verdict</th></tr>
+<tr><td>A separate type per column (MillGroup, ExporterGroup, …)</td><td>Rejected: four columns all name the same kind of thing, a parent company</td></tr>
+<tr><td><code>exporter</code> / <code>importer</code> as subtypes of company</td><td>Rejected: the data has companies in several roles, so subtypes would need multiple inheritance</td></tr>
+<tr><td>Separate <code>company-group</code> type</td><td>Rejected after reading the dictionary: a group is a company in the parent role</td></tr>
+<tr><td><b><code>company</code> + recursive <code>ownership</code>; facilities as a separate subtype tree; exporter/importer as roles</b></td><td><b>Adopted</b></td></tr>
+<tr><td>Facility <code>operation</code> by a company</td><td>Optional aside: inferred from matching names, not given by Trase</td></tr>
+</table></div>
+
+<h2 id="schema">5. Schema <span class="tag t">tested</span></h2>
+<pre><span class="k">define</span>
+  <span class="k">attribute</span> name, <span class="k">value</span> string;
+  <span class="k">attribute</span> trase-id, <span class="k">value</span> string;
+  <span class="k">attribute</span> year, <span class="k">value</span> integer;
+  <span class="k">attribute</span> volume-t, <span class="k">value</span> double;
+  <span class="k">attribute</span> fob-usd, <span class="k">value</span> double;
+  <span class="k">attribute</span> deforestation-ha, <span class="k">value</span> double;
+
+  <span class="c"># places: nested geography</span>
+  <span class="k">entity</span> place <span class="k">@abstract</span>,
+    <span class="k">owns</span> name <span class="k">@card</span>(1), <span class="k">owns</span> trase-id <span class="k">@key</span>,
+    <span class="k">plays</span> containment:container, <span class="k">plays</span> containment:contained;
+  <span class="k">entity</span> country <span class="k">sub</span> place, <span class="k">plays</span> trade-flow:destination;
+  <span class="k">entity</span> province <span class="k">sub</span> place;
+  <span class="k">entity</span> kabupaten <span class="k">sub</span> place, <span class="k">plays</span> trade-flow:origin;
+  <span class="k">relation</span> containment, <span class="k">relates</span> container <span class="k">@card</span>(1), <span class="k">relates</span> contained <span class="k">@card</span>(1);
+
+  <span class="c"># parties: companies and facilities, linked by (recursive) ownership</span>
+  <span class="k">entity</span> party <span class="k">@abstract</span>,
+    <span class="k">owns</span> name <span class="k">@card</span>(1),
+    <span class="k">plays</span> ownership:subsidiary <span class="k">@card</span>(0..1);        <span class="c"># at most one parent</span>
+  <span class="k">entity</span> company <span class="k">sub</span> party,
+    <span class="k">plays</span> ownership:parent,
+    <span class="k">plays</span> trade-flow:exporter,                         <span class="c"># roles, not subtypes</span>
+    <span class="k">plays</span> trade-flow:importer;
+  <span class="k">entity</span> facility <span class="k">@abstract</span>, <span class="k">sub</span> party;
+  <span class="k">entity</span> mill <span class="k">sub</span> facility, <span class="k">owns</span> trase-id <span class="k">@key</span>, <span class="k">plays</span> trade-flow:mill;
+  <span class="k">entity</span> refinery <span class="k">sub</span> facility, <span class="k">owns</span> trase-id <span class="k">@key</span>, <span class="k">plays</span> trade-flow:refinery;
+  <span class="k">entity</span> port <span class="k">sub</span> facility, <span class="k">plays</span> trade-flow:port;
+  <span class="k">relation</span> ownership, <span class="k">relates</span> parent <span class="k">@card</span>(1), <span class="k">relates</span> subsidiary <span class="k">@card</span>(1);
+
+  <span class="c"># commodities</span>
+  <span class="k">entity</span> commodity <span class="k">@abstract</span>, <span class="k">owns</span> name <span class="k">@card</span>(1), <span class="k">plays</span> trade-flow:commodity;
+  <span class="k">entity</span> crude-palm-oil <span class="k">sub</span> commodity;
+  <span class="k">entity</span> refined-palm-oil <span class="k">sub</span> commodity;
+
+  <span class="c"># the n-ary fact: one Trase row</span>
+  <span class="k">relation</span> trade-flow,
+    <span class="k">relates</span> origin <span class="k">@card</span>(1),
+    <span class="k">relates</span> mill <span class="k">@card</span>(1),
+    <span class="k">relates</span> refinery <span class="k">@card</span>(0..1),                <span class="c"># crude oil skips the refinery</span>
+    <span class="k">relates</span> exporter <span class="k">@card</span>(1),
+    <span class="k">relates</span> port <span class="k">@card</span>(1),
+    <span class="k">relates</span> importer <span class="k">@card</span>(1),
+    <span class="k">relates</span> destination <span class="k">@card</span>(1),
+    <span class="k">relates</span> commodity <span class="k">@card</span>(1),
+    <span class="k">owns</span> year <span class="k">@card</span>(1), <span class="k">owns</span> volume-t <span class="k">@card</span>(1),
+    <span class="k">owns</span> fob-usd <span class="k">@card</span>(1), <span class="k">owns</span> deforestation-ha <span class="k">@card</span>(1);
+
+  <span class="c"># derived: every owner above a party, at any depth</span>
+  <span class="k">fun</span> owners($x: party) -&gt; { company }:
+    <span class="k">match</span>
+      { ownership (subsidiary: $x, parent: $p); } <span class="k">or</span>
+      { <span class="k">let</span> $q <span class="k">in</span> owners($x); ownership (subsidiary: $q, parent: $p); };
+    <span class="k">return</span> { $p };
+
+  <span class="c"># derived: the party itself if it is a company, plus all its owners</span>
+  <span class="k">fun</span> controllers($x: party) -&gt; { company }:
+    <span class="k">match</span>
+      { $c <span class="k">isa</span> company; $c <span class="k">is</span> $x; } <span class="k">or</span>
+      { <span class="k">let</span> $c <span class="k">in</span> owners($x); };
+    <span class="k">return</span> { $c };</pre>
+<h3>Design choices to explain</h3>
+<ul>
+  <li><b>Why <code>@card(1)</code> on every <code>relates</code>:</b> in 3.x a role defaults to <code>@card(0..1)</code>, so a role can be left empty. Making each role mandatory gives Chen-style total participation.</li>
+  <li><b>Why <code>plays ownership:subsidiary @card(0..1)</code>:</b> the data dictionary implies one parent per party, and the data confirms it. A second parent is rejected at commit (Q7).</li>
+  <li><b>Why <code>party</code>:</b> companies and facilities share an abstract supertype, so ownership and the <code>owners</code>/<code>controllers</code> functions apply to both. Single inheritance is enough here.</li>
+  <li><b>Why functions:</b> "controls" and "owns at any depth" are <i>derived</i> facts, so they're defined once and reused. Wrapping the disjunction in <code>controllers()</code> also avoids a duplicate-rows issue (§10).</li>
+  <li><b>Ports are keyed by name:</b> Trase gives ports no ID. This is an honest wart, and you can mention it.</li>
+</ul>
+
+<h2 id="load">6. Loading</h2>
+<ul>
+  <li>A Python script generates a static <code>data.tql</code> of 1,075 single-line statements, in four passes. <span class="tag t">tested</span>
+    <ol>
+      <li>51 companies, by name (exporters, importers and every group value).</li>
+      <li>Places and facilities.</li>
+      <li>92 <code>ownership</code> links. Self-groups and placeholder values are skipped.</li>
+      <li>824 flows, each a <code>match … insert …</code> that looks up its eight role players.</li>
+    </ol>
+  </li>
+  <li><b>Load time:</b> 0.7 s on a local server, in one write transaction, with all cardinality checks passing at commit. The browser environment is untested.</li>
+  <li><b>Placeholder values:</b>
+    <ul>
+      <li><code>NOT REFINED</code>: insert the flow with no refinery role player.</li>
+      <li><code>importer_group == importer</code>: no ownership link.</li>
+      <li><code>UNKNOWN AFFILIATION</code>: currently loaded as a company. It should be skipped, or ownership left absent (5 mills); see to-dos.</li>
+    </ul>
+  </li>
+  <li><b>Files:</b> the v2 schema, data and loader are in the session scratchpad (<code>palm2/</code>). The <code>schema.tql</code>/<code>data.tql</code> in this folder are the <i>older v1</i> model, with a separate group type. Copy v2 over before Wednesday.</li>
+</ul>
+
+<h2 id="queries">7. Queries</h2>
+
+<h3>Q1 · Polymorphism: every facility, by kind <span class="tag t">tested</span></h3>
+<pre><span class="k">match</span> $f <span class="k">isa</span> facility; $f <span class="k">isa!</span> $t;
+<span class="k">reduce</span> $n = <span class="k">count</span> <span class="k">groupby</span> $t;</pre>
+<p>Result: mill 80 · refinery 6 · port 4. One query over the supertype returns every subtype.</p>
+
+<h3>Q2 · Reading an n-ary fact: where does one mill's oil go? <span class="tag t">tested</span></h3>
+<pre><span class="k">match</span> $m <span class="k">isa</span> mill, <span class="k">has</span> name <span class="s">"YUDHA WAHANA ABADI"</span>;
+  trade-flow (mill: $m, importer: $i, destination: $c);
+  $i <span class="k">has</span> name $in; $c <span class="k">has</span> name $cn;
+<span class="k">select</span> $in, $cn; <span class="k">distinct</span>;</pre>
+<p>Result: 15 importer–country pairs. A query names only the roles it cares about and leaves the other five unmentioned.</p>
+
+<h3>Q3 · The tier-3 challenge: deforestation exposure by EU importer <span class="tag t">tested</span></h3>
+<pre><span class="k">match</span>
+  $f <span class="k">isa</span> trade-flow, <span class="k">links</span> (importer: $i, mill: $m), <span class="k">has</span> deforestation-ha $d;
+  $d &gt; 0.0; $i <span class="k">has</span> name $importer;
+<span class="k">reduce</span> $total-ha = <span class="k">sum</span>($d) <span class="k">groupby</span> $importer;
+<span class="k">sort</span> $total-ha <span class="k">desc</span>;</pre>
+<p>Result: LOUIS DREYFUS 6,047 ha · FIRST RESOURCES 2,016 · GOLDEN AGRI INTERNATIONAL 804 · APICAL MIDDLE EAST 221 · AAA OILS &amp; FATS 117 · …</p>
+
+<h3>Q4 · Roles, not subtypes: companies controlling several roles <span class="tag t">tested</span></h3>
+<pre><span class="k">match</span>
+  $f <span class="k">isa</span> trade-flow, <span class="k">links</span> ($role: $x);
+  <span class="k">let</span> $c <span class="k">in</span> controllers($x);
+  $c <span class="k">has</span> name $company;
+<span class="k">select</span> $company, $role; <span class="k">distinct</span>;
+<span class="k">reduce</span> $roles = <span class="k">count</span> <span class="k">groupby</span> $company;
+<span class="k">match</span> $roles &gt; 1;
+<span class="k">sort</span> $roles <span class="k">desc</span>;</pre>
+<p>Result: FIRST RESOURCES 4 · SINAR MAS 3 · WILMAR 3 · LOUIS DREYFUS 3 · ROYAL GOLDEN EAGLE 2. Two features a CM audience will notice: variables range over <i>role types</i> (<code>$role</code>), and the recursive function walks the ownership hierarchy.</p>
+
+<h3>Q5 · The connection trap: n-ary vs. binary hops <span class="tag t">tested</span> (checked in Python)</h3>
+<pre><span class="c"># true mill→importer pairs, read straight off the n-ary facts</span>
+<span class="k">match</span> trade-flow (mill: $m, importer: $i);
+<span class="k">select</span> $m, $i; <span class="k">distinct</span>;
+<span class="k">reduce</span> $real-pairs = <span class="k">count</span>;          <span class="c"># 313</span>
+
+<span class="c"># the same question if the model only kept binary hops: chain them stage by stage</span>
+<span class="k">match</span> trade-flow (mill: $m, refinery: $r);
+<span class="k">select</span> $m, $r; <span class="k">distinct</span>;
+<span class="k">match</span> trade-flow (refinery: $r, exporter: $e);
+<span class="k">select</span> $m, $e; <span class="k">distinct</span>;
+<span class="k">match</span> trade-flow (exporter: $e, importer: $i);
+<span class="k">select</span> $m, $i; <span class="k">distinct</span>;
+<span class="k">reduce</span> $hop-pairs = <span class="k">count</span>;           <span class="c"># 348</span></pre>
+<p><b>35 spurious mill→importer links, none missing.</b> Crude flows add no new pairs, so the refined-only chain gives the full answer. It also shows multi-stage pipelines: each stage keeps only the variables the next hop needs.</p>
+
+<h3>Q6 · Recursion: exposure by controlling company, at any ownership depth <span class="tag t">tested</span> (checked in Python)</h3>
+<pre><span class="k">match</span>
+  $f <span class="k">isa</span> trade-flow, <span class="k">links</span> ($role: $x), <span class="k">has</span> deforestation-ha $d;
+  $d &gt; 0.0;
+  <span class="k">let</span> $c <span class="k">in</span> controllers($x);
+  $c <span class="k">has</span> name $company;
+<span class="k">select</span> $company, $f, $d; <span class="k">distinct</span>;       <span class="c"># count each flow once per company</span>
+<span class="k">reduce</span> $ha = <span class="k">sum</span>($d), $flows = <span class="k">count</span> <span class="k">groupby</span> $company;
+<span class="k">sort</span> $ha <span class="k">desc</span>;</pre>
+<p>Result: LOUIS DREYFUS 6,047 ha / 60 flows (the same as its subsidiary LDC EAST INDONESIA) · KUALA LUMPUR KEPONG 3,202 / 58 · TRIPUTRA AGRO PERSADA 2,637 / 110 · FIRST RESOURCES 2,016 / 7 · …</p>
+<p><b>Teaching point:</b> this is the recursion that matters. In Trase the full supply chain sits in each n-ary row, so the tier-3 question (Q3) needs no recursion at all. The recursive part is the <i>ownership</i> question: "which parent companies are exposed, through any subsidiary or facility, in any role?" The <code>select … distinct</code> before <code>reduce</code> stops a flow being counted twice when a company controls two of its roles. That's a good discussion of bag versus set semantics.</p>
+
+<h3>Q7 · Executability: the schema rejects bad data <span class="tag t">tested</span></h3>
+<table>
+<tr><th>Attempt</th><th>When it fails</th><th>Actual error</th></tr>
+<tr><td><code>insert $x isa facility, has name "Mystery site";</code><br>(abstract type)</td><td>Query compilation</td><td>INF11, type inference finds no compatible type for <code>$x</code></td></tr>
+<tr><td>Flow with only importer and destination</td><td>Commit</td><td>CNT5 <code>@card(1..1)</code> violated. The first violation reported is a missing attribute (deforestation-ha), not the missing mill</td></tr>
+<tr><td>A country in the <code>mill</code> role</td><td>Query compilation</td><td>INF11: <code>country</code> is incompatible with <code>trade-flow:mill</code></td></tr>
+<tr><td>A second mill with an existing trase-id</td><td>Write</td><td>CNT9 / DVL9 key constraint violation</td></tr>
+<tr><td>A second parent for a mill</td><td>Commit</td><td>CNT5 <code>@card(0..1)</code> violated: "found 2 instances"</td></tr>
+</table>
+<p>Show these live. This is the "executable" in the title: the model is enforced, not just drawn. Note for the talk: the abstract-type and wrong-role cases fail at <i>type inference</i>, before any data is touched, which is a nice type-theory moment. The error message is generic, though. The commit-time cases report only the first violation found.</p>
+
+<h3>Q8 · Integrity check the schema can't declare: no self-ownership <span class="tag t">tested</span></h3>
+<pre><span class="k">match</span> ownership (parent: $x, subsidiary: $x);
+<span class="k">reduce</span> $self-owned = <span class="k">count</span>;               <span class="c"># 0</span></pre>
+<p>ORM would declare this as an irreflexive ring constraint. In TypeDB it's a check query. Mention it when you refer back to Halpin.</p>
+
+<h2 id="teach">8. Teaching plan (90 min), aligned with the published outline</h2>
+
+<div class="step"><h3>1.1 · Introduction, ER as the source (10 min)</h3>
+<p>Chen's ER diagram of the chain on one slide, with one big diamond, <b>Trade Flow</b>, and its 8 edges. Pose the question: <i>"Which EU importers, and which parent companies, carry deforestation risk from mills three tiers upstream?"</i> Cite Chen 1976, Taxis/Galileo, and the Embley–Liddle–Pastor manifesto by name. Liddle and Pastor are in the room.</p></div>
+
+<div class="step"><h3>1.2 · What translations lose (10 min)</h3>
+<ul>
+<li><b>Relational:</b> the diamond becomes a table of 8 foreign keys. Roles become column names, subtypes become nullable columns or extra tables, and participation constraints move into triggers.</li>
+<li><b>Property graph:</b> the diamond has to be reified as a node, or split into binary edges, which creates spurious paths (preview Q5). Acknowledge Link &amp; Skavantzos's ER-on-property-graph work from ER 2025, and say what it still lacks.</li>
+<li><b>ORM nod:</b> refer back to Halpin's keynote the day before. Objectification ≈ a relation that plays roles. Irreflexive ring constraint = Q8.</li>
+</ul></div>
+
+<div class="step"><h3>1.3 · PERA and the ER→TypeQL mapping (10 min)</h3>
+<p>Show a mapping table: entity → <code>entity</code>; relationship → <code>relation</code>; role → <code>relates</code>/<code>plays</code>; attribute → <code>attribute</code> + <code>owns</code>; ISA → <code>sub</code>; participation → <code>@card</code>; key → <code>@key</code>; derived relationship → <code>fun</code>. Departures: attributes are first-class values; single inheritance only; relations own and play; and a role defaults to <code>@card(0..1)</code>.</p></div>
+
+<div class="step"><h3>2.1 · Setup + modelling from the CSV (10 min) · <i>the key segment</i></h3>
+<p>Run §4 live:</p>
+<ol>
+<li>Header plus one row: ask the room "what are the entities?"</li>
+<li>Show the overlapping names.</li>
+<li>Read the data dictionary aloud.</li>
+<li>Arrive at company + ownership + roles.</li>
+</ol>
+<p>Let the audience suggest exporter-as-subtype, then disprove it with the FIRST RESOURCES fact. This is ER modelling done on real data, and it's what this audience values.</p></div>
+
+<div class="step"><h3>2.2 · Schema, incrementally (10 min)</h3>
+<ol>
+<li>Places: <code>place @abstract</code>, subtypes, <code>containment</code>.</li>
+<li>Parties: <code>party</code> → <code>company</code> / <code>facility</code> → mill / refinery / port, plus <code>ownership</code>.</li>
+<li><code>trade-flow</code> with 8 roles. Pause on <code>refinery @card(0..1)</code> (crude oil).</li>
+<li>Commodities as subtypes.</li>
+</ol>
+<p>Each step is a separate <code>define</code>.</p></div>
+
+<div class="step"><h3>2.3 · Load data, first queries (10 min)</h3>
+<p>Load <code>data.tql</code>, then run Q1 and Q2. <b>Challenge:</b> "Which ports does oil for LOUIS DREYFUS leave from?"</p></div>
+
+<div class="step"><h3>2.4 · Polymorphic and recursive queries (15 min)</h3>
+<p>Q3 (the tier-3 challenge from the proposal), then Q5 (the connection trap), then define <code>owners</code>/<code>controllers</code> and run Q4 and Q6 (recursion over ownership). <b>Challenge:</b> "Which parent company is exposed through the most flows?" (TRIPUTRA AGRO PERSADA, 110)</p></div>
+
+<div class="step"><h3>2.5 · Extend the model live and introspect it (10 min)</h3>
+<p>Add <code>eudr-risk</code> to <code>country</code> (§9), run Q7 (rejected writes) and Q8, then query the schema: <code>match $t sub party;</code> · <code>match trade-flow relates $r;</code>.</p></div>
+
+<div class="step"><h3>3 · Wrap-up (5 min; take 10 if possible)</h3>
+<p>Positioning against relational, property-graph and OWL approaches. Open problems: dynamics (de Brock), multi-level types, and constraints that need queries (ring, set-comparison). Final slide: repo link, a QR code, and "bring me your model".</p></div>
+
+<h2 id="extend">9. Extensions</h2>
+<h3>EUDR country risk <span class="tag u">untested</span></h3>
+<pre><span class="k">define</span>
+  <span class="k">attribute</span> eudr-risk, <span class="k">value</span> string <span class="k">@values</span>(<span class="s">"low"</span>, <span class="s">"standard"</span>, <span class="s">"high"</span>);
+  <span class="k">entity</span> country, <span class="k">owns</span> eudr-risk <span class="k">@card</span>(0..1);</pre>
+<p>Indonesia is standard; EU members are low (Reg. (EU) 2025/1093, checked against a secondary source only). This works well as the live-extension step.</p>
+
+<h3>Provenance <span class="tag u">untested</span></h3>
+<p>Facility attribution comes from desk research, and flows are modelled. Add <code>relation attribution, relates attributed, relates source</code> with <code>trade-flow plays attribution:attributed</code>. That's a relation playing a role in another relation, which is a natural PERA showcase and appeals to the provenance researchers attending (Ram, Rowland, Kiamanesh).</p>
+
+<h3>Facility operator (inferred)</h3>
+<p><code>relation operation, relates operator, relates facility</code>, filled where a refinery name equals an exporter name (3 refineries, 588 rows). Label it as <b>inferred from matching names</b>. It's a good lead-in to the "name ≠ identity" discussion.</p>
+
+<h3>RSPO certification (Universal Mill List)</h3>
+<p>The UML shares no ID with Trase, and a naive name match covered only 25 of 80 mills. Curate by hand or skip.</p>
+
+<h3>Consumer products (optional, partly curated)</h3>
+<p>Open Food Facts gives real product → ingredient trees. The product → importer links would have to be <b>invented</b> and labelled illustrative. Without this layer the data is 100% real.</p>
+
+<h2 id="bugs">10. TypeDB issues found while testing</h2>
+<div class="box warn"><b>Likely bug: <code>distinct</code> after <code>or</code> streams duplicate rows.</b> Seen on the local server (development mode, Python driver 3.12.3). The duplicate rows have identical IIDs.
+<pre><span class="k">match</span> { $f <span class="k">isa</span> trade-flow, <span class="k">links</span> (mill: $m, exporter: $e); }
+  <span class="k">or</span> { $g <span class="k">isa</span> trade-flow, <span class="k">links</span> (mill: $m, exporter: $e); };
+<span class="k">select</span> $m, $e; <span class="k">distinct</span>;            <span class="c"># 334 rows, only 205 unique</span>
+<span class="c"># + "reduce $n = count;"                → 205 (correct)</span>
+<span class="c"># + a further match stage, or reduce sum → duplicates propagate</span></pre>
+<p>It showed up twice:</p>
+<ul>
+<li>A hop-join returned 413 instead of 348.</li>
+<li>An inline-disjunction version of Q6 exactly <i>doubled</i> LOUIS DREYFUS (12,094 ha / 120 flows instead of 6,047 / 60).</li>
+</ul>
+<p>A small case (<code>{ $m isa mill; } or { $m isa mill; }</code>, 80 rows) dedupes correctly, so it may depend on result size or batching. That's a hypothesis, not verified. <b>Workaround used in this guide:</b> put the disjunction inside a function (<code>controllers()</code>). The results then match Python exactly.</p></div>
+<div class="box"><b>Also seen:</b>
+<ul>
+<li>Using the same negation-local variable name (e.g. <code>not { $f links (refinery: $x); }</code>) in <i>both</i> branches of an <code>or</code> fails with REP44 ("variable 'x' must be bound").</li>
+<li><code>sort $m</code> on an entity variable fails with INF7, which is probably by design.</li>
+<li>Inserting an abstract type fails with a generic type-inference error (INF11) rather than an "abstract type" message, which is worth improving for teaching.</li>
+</ul></div>
+
+<h2 id="risks">11. Risks &amp; to-dos</h2>
+<ul>
+<li><b>Copy the v2 files from the scratchpad (<code>palm2/</code>) into the tutorial repo.</b> This folder's <code>schema.tql</code>/<code>data.tql</code> are the older v1.</li>
+<li><b>Handle the <code>UNKNOWN AFFILIATION</code> placeholder in the loader</b> (5 mills): either skip the ownership link, or keep it as an explicitly "unknown" parent and explain why.</li>
+<li><b>Load in the browser environment over a slow connection.</b> Have a local fallback.</li>
+<li><b>Avoid inline <code>or</code> + <code>distinct</code> in live demos</b> until the bug in §10 is fixed, and consider filing it.</li>
+<li><b>Licence:</b> CC BY 4.0, but Trase asks commercial users to get in touch. Send a courtesy note to info@trase.earth.</li>
+<li><b>Names are ALL CAPS in the source.</b> Title-casing is cosmetic and optional.</li>
+<li><b>Scratch database:</b> <code>er2026_palm_scratch</code> on your local server now holds the v2 model, plus the <code>controllers</code> function. Delete it when you're done.</li>
+</ul>
+</main>
+</div>
+</body>
+</html>

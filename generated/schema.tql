@@ -1,0 +1,57 @@
+define
+  attribute name, value string;
+  attribute trase-id, value string;
+  attribute year, value integer;
+  attribute volume-t, value double;
+  attribute fob-usd, value double;
+  attribute deforestation-ha, value double;
+
+  # ── places: nested geography ──────────────────────────────
+  entity place @abstract,
+    owns name @card(1),
+    owns trase-id @key,
+    plays containment:container,
+    plays containment:contained;
+  entity country sub place, plays trade-flow:destination;
+  entity province sub place;
+  entity kabupaten sub place, plays trade-flow:origin;
+  relation containment,
+    relates container @card(1),
+    relates contained @card(1);
+
+  # ── parties: who and what takes part in supply ────────────
+  entity party @abstract,
+    owns name @card(1),
+    plays membership:member;
+  entity organisation @abstract, sub party;
+  entity company-group sub organisation, plays membership:group;
+  entity company sub organisation,
+    plays trade-flow:exporter,
+    plays trade-flow:importer;
+  entity facility @abstract, sub party;
+  entity mill sub facility, owns trase-id @key, plays trade-flow:mill;
+  entity refinery sub facility, owns trase-id @key, plays trade-flow:refinery;
+  entity port sub facility, plays trade-flow:port;
+  relation membership,
+    relates group @card(1),
+    relates member @card(1);
+
+  # ── commodities ───────────────────────────────────────────
+  entity commodity @abstract, owns name @card(1), plays trade-flow:commodity;
+  entity crude-palm-oil sub commodity;
+  entity refined-palm-oil sub commodity;
+
+  # ── the n-ary fact: one Trase row ─────────────────────────
+  relation trade-flow,
+    relates origin @card(1),
+    relates mill @card(1),
+    relates refinery @card(0..1),
+    relates exporter @card(1),
+    relates port @card(1),
+    relates importer @card(1),
+    relates destination @card(1),
+    relates commodity @card(1),
+    owns year @card(1),
+    owns volume-t @card(1),
+    owns fob-usd @card(1),
+    owns deforestation-ha @card(1);

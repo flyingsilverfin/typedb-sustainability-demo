@@ -1,0 +1,40 @@
+match $f isa facility; $f isa! $t;
+reduce $n = count groupby $t;
+#---
+match $m isa mill, has name "YUDHA WAHANA ABADI";
+  trade-flow (mill: $m, importer: $i, destination: $c);
+  $i has name $in; $c has name $cn;
+select $in, $cn; distinct;
+#---
+match
+  $f isa trade-flow, links (importer: $i, mill: $m), has deforestation-ha $d;
+  $d > 0.0; $i has name $importer;
+reduce $total-ha = sum($d) groupby $importer;
+sort $total-ha desc;
+#---
+match
+  $f isa trade-flow, links (importer: $i, mill: $m), has deforestation-ha $d;
+  $d > 0.0; $i has name $importer;
+select $importer, $m; distinct;
+reduce $mills = count groupby $importer;
+sort $mills desc;
+#---
+match
+  membership (group: $g, member: $x);
+  trade-flow ($role: $x);
+  $g has name $group;
+select $group, $role; distinct;
+reduce $roles = count groupby $group;
+match $roles > 1;
+sort $roles desc;
+#---
+match trade-flow (mill: $m, importer: $i);
+select $m, $i; distinct;
+reduce $real-pairs = count;
+#---
+match
+  { trade-flow (mill: $m, refinery: $r); trade-flow (refinery: $r, exporter: $e); }
+  or { $f1 isa trade-flow, links (mill: $m, exporter: $e); not { $f1 links (refinery: $r0); }; };
+  trade-flow (exporter: $e, importer: $i);
+select $m, $i; distinct;
+reduce $hop-pairs = count;

@@ -1,0 +1,11 @@
+match trade-flow (mill: $m, refinery: $r);
+select $m, $r; distinct;
+match trade-flow (refinery: $r, exporter: $e);
+select $m, $e; distinct;
+match trade-flow (exporter: $e, importer: $i);
+select $m, $i; distinct;
+reduce $hop-pairs = count;
+#---
+match trade-flow (mill: $m, importer: $i);
+select $m, $i; distinct;
+reduce $real-pairs = count;
