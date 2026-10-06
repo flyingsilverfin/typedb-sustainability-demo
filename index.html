@@ -67,12 +67,23 @@
     <div class="step-body">
     <p>Reading the header and a first row, the easiest things to model are the places: the country, the province and the <i>kabupaten</i> (district) the palm oil comes from.</p>
     <figure class="diagram" data-svg="diagrams/places.svg">
-      <figcaption>Three entity types, each identified by its name (underlined = key).</figcaption>
+      <figcaption>Three kinds of place, each identified by its name (underlined = key), under an abstract <i>place</i> (dashed).</figcaption>
     </figure>
     <details class="reveal">
       <summary>Places in TypeQL <span class="hint">snippet 1</span></summary>
       <div class="body"><div data-code="schema/01-places.tql"></div></div>
-    </details>    </div>
+    </details>
+
+    <h4>Places contain places</h4>
+    <p>Presumably the places nest: a kabupaten lies in a province, which lies in a country.</p>
+    <figure class="diagram" data-svg="diagrams/places-containment.svg">
+      <figcaption>One <i>containment</i> relation type, drawn once for each pair it connects. A province is a child of its country and a parent of its kabupaten.</figcaption>
+    </figure>
+    <details class="reveal">
+      <summary>Places hierarchy in TypeQL <span class="hint">snippet 1.1</span></summary>
+      <div class="body"><div data-code="schema/01b-places-containment.tql"></div></div>
+    </details>
+    </div>
   </section>
 
   <!-- 2. Companies and facilities -->

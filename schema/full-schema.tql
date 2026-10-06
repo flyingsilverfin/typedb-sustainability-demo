@@ -7,14 +7,30 @@ attribute country_name, value string;
 attribute province_name, value string;
 attribute kabupaten_name, value string;
 
+entity place @abstract;
+
 entity country,
+  sub place,
   owns country_name @key;
 
 entity province,
+  sub place,
   owns province_name @key;
 
 entity kabupaten,
+  sub place,
   owns kabupaten_name @key;
+
+# ---- 01b-places-containment.tql ----
+### Places hierarchy ###
+
+relation containment,
+  relates parent @card(1),
+  relates child @card(1);
+
+entity country, plays containment:parent;
+entity province, plays containment:child, plays containment:parent;
+entity kabupaten, plays containment:child;
 
 # ---- 02b-option-2-companies-facilities.tql ----
 ### Companies and facilities ###

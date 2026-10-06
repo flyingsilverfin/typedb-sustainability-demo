@@ -10,7 +10,7 @@ an executable ER model of a palm oil supply chain, built step by step in TypeDB.
 | Path | What |
 |---|---|
 | `index.html`, `assets/` | The tutorial web page (static, no build step) |
-| `schema/01-…05-*.tql` | The schema snippets, in tutorial order |
+| `schema/01-…05-*.tql` | The schema snippets, in tutorial order (`01b` is snippet 1.1) |
 | `schema/02a-…`, `schema/04c-…` | Discussion-only alternatives (not part of the final model) |
 | `schema/full-schema.tql` | **Generated**: snippets 1–5 merged into one `define` |
 | `data/palm_kaltim_eu_2022_demo.csv` | The 81-row data excerpt |

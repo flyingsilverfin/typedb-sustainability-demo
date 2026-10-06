@@ -16,6 +16,15 @@ $kab_penajam_paser_utara isa kabupaten, has kabupaten_name "PENAJAM PASER UTARA"
 $kab_paser isa kabupaten, has kabupaten_name "PASER";
 $kab_kutai_timur isa kabupaten, has kabupaten_name "KUTAI TIMUR";
 
+## Containment ##
+containment (parent: $country_indonesia, child: $prov_kalimantan_timur);
+containment (parent: $prov_kalimantan_timur, child: $kab_mahakam_ulu);
+containment (parent: $prov_kalimantan_timur, child: $kab_kutai_kartanegara);
+containment (parent: $prov_kalimantan_timur, child: $kab_berau);
+containment (parent: $prov_kalimantan_timur, child: $kab_penajam_paser_utara);
+containment (parent: $prov_kalimantan_timur, child: $kab_paser);
+containment (parent: $prov_kalimantan_timur, child: $kab_kutai_timur);
+
 ## Commodities ##
 $com_refined_palm_oil isa commodity, has commodity_name "REFINED PALM OIL";
 $com_palm_oil isa commodity, has commodity_name "PALM OIL";

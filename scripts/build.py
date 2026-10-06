@@ -16,6 +16,7 @@ ROOT = Path(__file__).resolve().parent.parent
 # Discussion-only alternatives (option 1, the commodity challenge) are deliberately excluded.
 SCHEMA_SNIPPETS = [
     "schema/01-places.tql",
+    "schema/01b-places-containment.tql",
     "schema/02b-option-2-companies-facilities.tql",
     "schema/03-company-ownership.tql",
     "schema/04a-commodities.tql",
@@ -62,6 +63,16 @@ def build_insert() -> str:
     for r in rows:
         k = r["kabupaten_of_production"]
         once(("kab", k), f'{var("kab", k)} isa kabupaten, has kabupaten_name {q(k)};')
+
+    lines.append("\n## Containment ##")
+    for r in rows:
+        once(("in", "prov", r["province_of_production"]),
+             f'containment (parent: {var("country", r["country_of_production"])}, '
+             f'child: {var("prov", r["province_of_production"])});')
+    for r in rows:
+        once(("in", "kab", r["kabupaten_of_production"]),
+             f'containment (parent: {var("prov", r["province_of_production"])}, '
+             f'child: {var("kab", r["kabupaten_of_production"])});')
 
     lines.append("\n## Commodities ##")
     for r in rows:
