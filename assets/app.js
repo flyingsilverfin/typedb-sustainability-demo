@@ -141,19 +141,9 @@ function currentSection() {
 function setupHelp() {
   const box = document.getElementById("help");
   if (!box) return;
-  const toggle = box.querySelector(".help-toggle");
   const form = box.querySelector("form");
   const status = form.querySelector(".help-status");
   const send = form.querySelector(".help-send");
-
-  const open = (isOpen) => {
-    form.hidden = !isOpen;
-    toggle.hidden = isOpen;
-    toggle.setAttribute("aria-expanded", String(isOpen));
-    if (isOpen) form.elements.message.focus();
-  };
-  toggle.addEventListener("click", () => open(true));
-  box.querySelector(".help-close").addEventListener("click", () => open(false));
 
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
