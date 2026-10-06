@@ -2,8 +2,8 @@ define
 
 ### Companies and facilities ###
 
-attribute facility_name, value string;
-attribute company_name, value string;
+attribute facility_name, sub name;
+attribute company_name, sub name;
 
 entity facility @abstract,
   owns facility_name,

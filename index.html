@@ -69,6 +69,7 @@
     <figure class="diagram" data-svg="diagrams/places.svg">
       <figcaption>Three kinds of place, each identified by its name (underlined = key), under an abstract <i>place</i> (dashed).</figcaption>
     </figure>
+    <p>All the <code>*_name</code> attributes we define share one supertype, <code>name</code>, so a single query like <code>match $x has name $n;</code> finds every named thing, whatever its type.</p>
     <details class="reveal">
       <summary>Places in TypeQL <span class="hint">snippet 1</span></summary>
       <div class="body"><div data-code="schema/01-places.tql"></div></div>

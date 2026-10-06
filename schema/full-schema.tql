@@ -1,10 +1,12 @@
 define
 
+attribute name, value string;
+
 ### Places ###
 
-attribute country_name, value string;
-attribute province_name, value string;
-attribute kabupaten_name, value string;
+attribute country_name, sub name;
+attribute province_name, sub name;
+attribute kabupaten_name, sub name;
 
 entity place @abstract;
 
@@ -35,8 +37,8 @@ entity kabupaten,
 
 ### Companies and facilities ###
 
-attribute facility_name, value string;
-attribute company_name, value string;
+attribute facility_name, sub name;
+attribute company_name, sub name;
 
 entity facility @abstract,
   owns facility_name,
@@ -61,6 +63,7 @@ entity company,
 ### Commodities ###
 
 attribute commodity_name,
+  sub name,
   value string @values("PALM OIL", "REFINED PALM OIL");  # validated enum
 
 entity commodity,

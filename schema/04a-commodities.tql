@@ -3,6 +3,7 @@ define
 ### Commodities ###
 
 attribute commodity_name,
+  sub name,
   value string @values("PALM OIL", "REFINED PALM OIL");  # validated enum
 
 entity commodity,

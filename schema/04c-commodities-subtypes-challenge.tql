@@ -4,7 +4,8 @@
 # Don't run this in the same database as option a).
 define
 
-attribute commodity_name, value string;
+attribute name, value string;
+attribute commodity_name, sub name;
 
 entity commodity @abstract;
 
