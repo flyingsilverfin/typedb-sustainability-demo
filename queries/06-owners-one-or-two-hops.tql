@@ -1,0 +1,9 @@
+match
+  $f isa facility, has name $facility_name;  # polymorphic facility & name types
+  $facility_name == "LDC EAST INDONESIA";
+  { ownership (owned: $f, owner: $c); }
+  or {
+    ownership (owned: $f, owner: $middle);
+    ownership (owned: $middle, owner: $c);
+  };
+  $c has name $company_name;

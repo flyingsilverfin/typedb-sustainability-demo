@@ -1,0 +1,5 @@
+match
+  $f isa trade_flow, links (importer: $i, mill: $m), has deforestation_ha $d;
+  $i has company_name $importer;
+reduce $total_ha = sum($d) groupby $importer;
+sort $total_ha desc;

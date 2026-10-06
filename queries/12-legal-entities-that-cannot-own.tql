@@ -1,0 +1,3 @@
+match
+  $l sub legal_entity;
+  not { $l plays ownership:owner; };

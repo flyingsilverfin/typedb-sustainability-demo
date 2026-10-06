@@ -1,0 +1,3 @@
+match
+  $f isa facility;
+  $f isa! $t;

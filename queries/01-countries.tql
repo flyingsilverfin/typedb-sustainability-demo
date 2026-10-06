@@ -1,0 +1,1 @@
+match $c isa country, has country_name $n;

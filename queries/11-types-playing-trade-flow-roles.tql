@@ -1,0 +1,3 @@
+match
+  trade_flow relates $role;
+  $t plays $role;

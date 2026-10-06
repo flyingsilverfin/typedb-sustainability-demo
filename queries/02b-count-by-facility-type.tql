@@ -1,0 +1,4 @@
+match
+  $f isa facility;
+  $f isa! $t;
+reduce $count = count groupby $t;

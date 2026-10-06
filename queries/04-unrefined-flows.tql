@@ -1,0 +1,3 @@
+match
+  $tf isa trade_flow;
+  not { $tf links (refiner: $r); };

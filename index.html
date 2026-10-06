@@ -24,6 +24,7 @@
     <a href="#trade-flows">4 · Trade flows</a>
     <a href="#full-model">Full model</a>
     <a href="#data">Data</a>
+    <a href="#queries">Querying</a>
   </nav>
 
   <!-- ================================================================== SETUP -->
@@ -208,6 +209,96 @@
     <p>One <code>insert</code> query loads everything.</p>
     <div data-code="data/insert-data.tql" class="tall"></div>
   </section>
+
+  <!-- ================================================================== QUERIES -->
+  <h2 id="queries">Querying</h2>
+  <p class="lead">Each query is folded away: have a go first, then open it to compare. Results are for the demo data.</p>
+
+  <section id="q-basics" class="step">
+    <h3>Pattern matching and polymorphism</h3>
+    <div class="step-body">
+    <details class="reveal">
+      <summary>Look up all countries and their names <span class="hint">7 results</span></summary>
+      <div class="body"><div data-code="queries/01-countries.tql"></div></div>
+    </details>
+    <details class="reveal">
+      <summary>Get all facilities, polymorphically, with their exact types <span class="hint">47 results</span></summary>
+      <div class="body"><div data-code="queries/02a-facilities-and-types.tql"></div></div>
+    </details>
+    <details class="reveal">
+      <summary>Extension: count facilities by type <span class="hint">41 mills, 6 refineries</span></summary>
+      <div class="body"><div data-code="queries/02b-count-by-facility-type.tql"></div></div>
+    </details>
+    </div>
+  </section>
+
+  <section id="q-flows" class="step">
+    <h3>Trade flows</h3>
+    <div class="step-body">
+    <details class="reveal">
+      <summary>Count trade flows by import country <span class="hint">6 countries</span></summary>
+      <div class="body"><div data-code="queries/03-flows-by-import-country.tql"></div></div>
+    </details>
+    <details class="reveal">
+      <summary>Find the unrefined (crude) trade flows <span class="hint">10 results</span></summary>
+      <div class="body"><div data-code="queries/04-unrefined-flows.tql"></div></div>
+    </details>
+    <div class="callout"><b>Challenge:</b> total deforestation exposure (<code>deforestation_ha</code>) by importer.</div>
+    <details class="reveal">
+      <summary>Deforestation exposure by importer <span class="hint">one possible answer</span></summary>
+      <div class="body"><div data-code="queries/05-deforestation-by-importer.tql"></div></div>
+    </details>
+    </div>
+  </section>
+
+  <section id="q-ownership" class="step">
+    <h3>Facility ownership</h3>
+    <div class="step-body">
+    <p>A facility can sit under several layers of companies. Can one query find all of a facility's owners?</p>
+    <details class="reveal">
+      <summary>One or two hops, spelled out <span class="hint">LDC EAST INDONESIA and LOUIS DREYFUS</span></summary>
+      <div class="body"><div data-code="queries/06-owners-one-or-two-hops.tql"></div></div>
+    </details>
+    <details class="reveal">
+      <summary>Any number of hops, with a recursive function <span class="hint">same answer, any depth</span></summary>
+      <div class="body"><div data-code="queries/07-owners-recursive.tql"></div></div>
+    </details>
+    </div>
+  </section>
+
+  <section id="q-constraints" class="step">
+    <h3>Hitting the constraints</h3>
+    <div class="step-body">
+    <p>These are <b>meant to fail</b>. The first two are rejected by the type checker before anything runs; the third breaks a schema constraint when it's committed.</p>
+    <details class="reveal">
+      <summary>Insert a facility (an abstract type) <span class="hint">type error</span></summary>
+      <div class="body"><div data-code="queries/08-insert-abstract-facility.tql"></div></div>
+    </details>
+    <details class="reveal">
+      <summary>Find countries playing the mill role in trade flows <span class="hint">type error</span></summary>
+      <div class="body"><div data-code="queries/09-countries-as-mills.tql"></div></div>
+    </details>
+    <details class="reveal">
+      <summary>Insert a country without a country name <span class="hint">fails at commit: @key</span></summary>
+      <div class="body"><div data-code="queries/10-insert-country-without-name.tql"></div></div>
+    </details>
+    </div>
+  </section>
+
+  <section id="q-model" class="step">
+    <h3>Querying the model itself</h3>
+    <div class="step-body">
+    <details class="reveal">
+      <summary>Which types play which roles in trade_flow? <span class="hint">7 results</span></summary>
+      <div class="body"><div data-code="queries/11-types-playing-trade-flow-roles.tql"></div></div>
+    </details>
+    <details class="reveal">
+      <summary>Which legal entity types cannot own other legal entities? <span class="hint">includes legal_entity itself</span></summary>
+      <div class="body"><div data-code="queries/12-legal-entities-that-cannot-own.tql"></div></div>
+    </details>
+    </div>
+  </section>
+
 
 </div>
 <aside class="help" id="help">

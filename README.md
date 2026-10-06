@@ -15,6 +15,7 @@ an executable ER model of a palm oil supply chain, built step by step in TypeDB.
 | `schema/full-schema.tql` | **Generated**: snippets 1–5 merged into one `define` |
 | `data/palm_kaltim_eu_2022_demo.csv` | The 81-row data excerpt |
 | `data/insert-data.tql` | **Generated**: the excerpt as one `insert` query |
+| `queries/*.tql` | The Part 3 queries shown on the page (08–10 are meant to fail) |
 | `diagrams/*.svg` | ER diagrams shown on the page |
 | `scripts/build.py` | Regenerates the two generated files |
 

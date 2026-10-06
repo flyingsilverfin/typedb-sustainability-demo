@@ -1,0 +1,4 @@
+match
+  $tf isa trade_flow, links (destination: $country);
+  $country has country_name $name;
+reduce $count = count groupby $name;

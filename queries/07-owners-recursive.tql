@@ -1,0 +1,13 @@
+with fun owners($f: legal_entity) -> { company }:
+  match
+    { ownership (owned: $f, owner: $c); }
+    or {
+      ownership (owned: $f, owner: $middle);
+      let $c in owners($middle);
+    };
+  return { $c };
+match
+  $f isa facility, has name $facility_name;
+  $facility_name == "LDC EAST INDONESIA";
+  let $c in owners($f);
+  $c has name $company_name;
