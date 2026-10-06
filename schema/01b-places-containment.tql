@@ -7,5 +7,8 @@ relation containment,
   relates child @card(1);
 
 entity country, plays containment:parent;
-entity province, plays containment:child, plays containment:parent;
-entity kabupaten, plays containment:child;
+entity province,
+  plays containment:child @card(0..1),   # at most 1 parent
+  plays containment:parent;
+entity kabupaten,
+  plays containment:child @card(0..1);   # at most 1 parent
