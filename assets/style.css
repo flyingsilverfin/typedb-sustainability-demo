@@ -255,14 +255,14 @@ table.data td.placeholder { color: var(--muted); font-style: italic; }
 
 /* narrow screens: compact bar pinned to the bottom (message + send only) */
 @media (max-width: 1239px) {
-  body { padding-bottom: 92px; }
+  body { padding-bottom: 134px; }
   .help { left: 0; right: 0; bottom: 0; }
   .help-panel {
     border-radius: 0; border-width: 1px 0 0; padding: 10px 16px;
     grid-template-columns: 1fr auto; align-items: end; gap: 6px 10px;
   }
   .help-panel .help-title, .help-panel .help-name, .help-panel .help-label { display: none; }
-  .help-message textarea { height: 42px; resize: none; }
+  .help-message textarea { height: 84px; resize: none; }
   .help-send { height: 42px; }
   .help-status { grid-column: 1 / -1; }
 }
