@@ -1,0 +1,217 @@
+/* Colours and code highlighting follow TypeDB's shared theme tokens
+   (typedb-web: common/src/styles/_theme-tokens.scss, _colors-light.scss, prism.scss),
+   as used by typedb.com (dark) and TypeDB Studio (dark + light). The page follows the system setting. */
+:root {
+  --color-black: #0e0e0e;
+  --color-deep-purple: #151322;
+  --color-purple: #1a182a;
+  --color-secondary-purple: #232135;
+  --color-light-purple: #2d2a46;
+  --color-secondary-grey: #63607c;
+  --color-secondary-light-grey: #958fa8;
+  --color-grey: #d7d4e5;
+  --color-white: #f3f3f3;
+  --color-green: #02dac9;
+  --color-secondary-blue: #7ba0ff;
+  --color-secondary-pink: #ff87dc;
+
+  --prism-white: #ece0ff;
+  --prism-cyan: #55eae2;
+  --prism-light-green: #02dac9;
+  --prism-pink: #ff7abd;
+  --prism-blue: #82b6ff;
+  --prism-purple: #c099f3;
+  --prism-orange: #ffa187;
+  --prism-yellow: #ffe4a7;
+  --prism-grey: #c69ec3;
+  --prism-very-grey: #999999;
+  --prism-red: #ff8080;
+
+  --bg: var(--color-black);
+  --fg: var(--color-white);
+  --muted: var(--color-secondary-light-grey);
+  --card: var(--color-purple);
+  --line: var(--color-light-purple);
+  --accent: var(--color-green);
+  --link: var(--color-secondary-blue);
+  --code-bg: var(--color-deep-purple);
+  --code-font: Monaco, ui-monospace, SFMono-Regular, Menlo, monospace;
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: light) {
+  :root {
+    --color-black: #fafafa;
+    --color-deep-purple: #f0eef6;
+    --color-purple: #e8e6f2;
+    --color-secondary-purple: #e8e5f0;
+    --color-light-purple: #d0cde4;
+    --color-secondary-grey: #9d99b2;
+    --color-secondary-light-grey: #6b6580;
+    --color-grey: #3a3a52;
+    --color-white: #1a1a2e;
+    --color-green: #008f80;
+    --color-secondary-blue: #4070dd;
+    --color-secondary-pink: #c050a0;
+
+    --prism-white: #2a2040;
+    --prism-cyan: #007a6e;
+    --prism-light-green: #008577;
+    --prism-pink: #c040a0;
+    --prism-blue: #3366cc;
+    --prism-purple: #7b44c0;
+    --prism-orange: #cc5530;
+    --prism-yellow: #8a6d10;
+    --prism-grey: #885080;
+    --prism-very-grey: #666666;
+    --prism-red: #cc3333;
+
+    color-scheme: light;
+  }
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font: 16px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  letter-spacing: 0.01em;
+}
+a { color: var(--link); }
+code { font-family: var(--code-font); font-size: .88em; color: var(--color-secondary-pink); }
+.page { max-width: 920px; margin: 0 auto; padding: 0 16px 80px; }
+
+header.hero { padding: 56px 0 28px; border-bottom: 1px solid var(--line); }
+.hero .eyebrow { color: var(--accent); font-weight: 600; font-size: 14px; letter-spacing: .04em; margin: 0 0 10px; text-transform: uppercase; }
+.hero h1 { font-size: 38px; line-height: 1.12; margin: 0 0 14px; }
+.hero p { color: var(--color-grey); margin: 0; max-width: 680px; }
+
+nav.toc { display: flex; flex-wrap: wrap; gap: 8px; padding: 16px 0; border-bottom: 1px solid var(--line); }
+nav.toc a {
+  text-decoration: none; font-size: 14px; color: var(--fg);
+  padding: 4px 12px; border: 1px solid var(--line); border-radius: 999px; background: var(--card);
+}
+nav.toc a:hover { border-color: var(--accent); color: var(--accent); }
+
+h2 { font-size: 28px; margin: 52px 0 8px; }
+h3 { font-size: 20px; margin: 32px 0 8px; }
+h4 { font-size: 16px; margin: 26px 0 6px; color: var(--color-grey); }
+section > p, .step p { max-width: 720px; }
+.lead { color: var(--muted); }
+
+ol.setup { padding-left: 0; list-style: none; counter-reset: step; }
+ol.setup > li {
+  counter-increment: step; position: relative;
+  background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+  padding: 14px 16px 14px 56px; margin: 12px 0;
+}
+ol.setup > li::before {
+  content: counter(step); position: absolute; left: 16px; top: 14px;
+  width: 26px; height: 26px; border-radius: 50%; background: var(--accent); color: var(--color-black);
+  display: grid; place-items: center; font-weight: 700; font-size: 14px;
+}
+ol.setup ul { margin: 6px 0 0; padding-left: 20px; }
+.ready { font-weight: 600; color: var(--accent); }
+
+.step { border-left: 3px solid var(--accent); padding: 2px 0 2px 18px; margin: 28px 0; }
+.step > h3 { margin-top: 0; }
+
+figure.diagram {
+  margin: 14px 0; padding: 12px; background: var(--card);
+  border: 1px solid var(--line); border-radius: 12px; overflow-x: auto;
+}
+figure.diagram svg { display: block; width: 100%; height: auto; min-width: 460px; }
+figure.diagram figcaption { color: var(--muted); font-size: 13px; margin-top: 6px; }
+
+/* ER diagrams (Chen notation) take their colours from the page */
+.er text { fill: var(--fg); font: 14px -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; }
+.er .links line, .er .links path, .er line.opt { stroke: var(--color-secondary-light-grey); }
+.er .ent rect, .er rect.abstract { fill: var(--color-deep-purple); stroke: var(--color-grey); stroke-width: 1.5; }
+.er polygon.rel, .er .rel polygon { fill: var(--color-secondary-purple); stroke: var(--color-secondary-pink); stroke-width: 1.5; }
+.er polygon.isa { fill: var(--color-deep-purple); stroke: var(--color-grey); }
+.er .attr ellipse { fill: var(--color-deep-purple); stroke: var(--color-secondary-grey); }
+.er text.name, .er text.relname { font-weight: 600; }
+.er text.role { fill: var(--muted); font-size: 12px; font-style: italic; }
+.er path.new { stroke: var(--accent); }
+.er text.new-label { fill: var(--accent); }
+
+details.reveal {
+  margin: 12px 0; border: 1px solid var(--line); border-radius: 12px; background: var(--card);
+}
+details.reveal > summary {
+  cursor: pointer; padding: 10px 14px; font-weight: 600; list-style: none;
+  display: flex; align-items: baseline; flex-wrap: wrap; gap: 8px;
+}
+details.reveal > summary::-webkit-details-marker { display: none; }
+details.reveal > summary::before { content: "▸"; color: var(--accent); transition: transform .15s; }
+details.reveal[open] > summary::before { transform: rotate(90deg); }
+details.reveal > .body { padding: 0 14px 14px; }
+details.reveal .hint { color: var(--muted); font-weight: 400; font-size: 14px; }
+
+.code {
+  position: relative; margin: 10px 0; border: 1px solid var(--line); border-radius: 8px;
+  background: var(--code-bg); overflow: hidden;
+}
+.code .bar {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  padding: 6px 10px; border-bottom: 1px solid var(--line); font-size: 13px; color: var(--muted);
+}
+.code .bar .path { font-family: var(--code-font); font-size: 12px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.code .bar .actions { display: flex; gap: 6px; flex-shrink: 0; }
+.code .bar a, .code .bar button {
+  font: inherit; font-size: 13px; color: var(--fg); background: var(--color-secondary-purple);
+  border: 1px solid var(--line); border-radius: 6px; padding: 2px 10px; cursor: pointer; text-decoration: none;
+}
+.code .bar button:hover, .code .bar a:hover { border-color: var(--accent); color: var(--accent); }
+.code pre {
+  margin: 0; padding: 12px 14px; overflow: auto;
+  font: 13px/1.6 var(--code-font); tab-size: 2;
+}
+.code pre code { color: inherit; font-size: inherit; }
+.code.tall pre { max-height: 460px; }
+
+/* Prism token colours (typedb-web common/src/styles/prism.scss) */
+.code pre { color: var(--prism-white); }
+.token.argument { color: var(--prism-white); font-style: italic; }
+.token.comment { color: var(--prism-very-grey); font-style: italic; }
+.token.super, .token.type { color: var(--prism-cyan); font-style: italic; }
+.token.variable { color: var(--prism-cyan); }
+.token.modifier { color: var(--prism-blue); font-style: italic; }
+.token.class-name, .token.number, .token.datetime, .token.constant { color: var(--prism-blue); }
+.token.function { color: var(--prism-light-green); }
+.token.string { color: var(--prism-yellow); }
+.token.operator, .token.keyword, .token.punctuation, .token.special { color: var(--prism-pink); }
+.token.constraint, .token.local-name { color: var(--prism-purple); }
+.token.object_label { color: var(--prism-grey); }
+.token.irrelevant { color: var(--prism-very-grey); }
+.token.annotation { color: var(--prism-orange); }
+.token.error { color: var(--prism-red); }
+
+.options { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin: 12px 0; }
+.options div { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; }
+.options b { color: var(--accent); }
+
+.callout { background: rgba(123, 160, 255, 0.09); border: 1px solid rgba(123, 160, 255, 0.35); border-radius: 12px; padding: 12px 16px; margin: 14px 0; }
+.callout > b:first-child { color: var(--link); }
+
+.table-wrap { max-height: 420px; overflow: auto; border: 1px solid var(--line); border-radius: 8px; background: var(--code-bg); }
+table.data { border-collapse: collapse; font-size: 12.5px; white-space: nowrap; }
+table.data th, table.data td { border-bottom: 1px solid var(--line); padding: 5px 10px; text-align: left; }
+table.data th { position: sticky; top: 0; background: var(--color-secondary-purple); font-weight: 600; }
+table.data td.num { text-align: right; font-variant-numeric: tabular-nums; }
+
+.facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin: 14px 0; }
+.facts div { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; }
+.facts b { display: block; font-size: 22px; color: var(--accent); }
+.facts span { color: var(--muted); font-size: 13px; }
+
+.cite { font-size: 14px; color: var(--muted); border-left: 3px solid var(--line); padding-left: 12px; }
+footer { margin-top: 64px; padding-top: 16px; border-top: 1px solid var(--line); color: var(--muted); font-size: 14px; }
+.error { color: var(--prism-red); }
+
+@media (max-width: 600px) {
+  .hero h1 { font-size: 28px; }
+  h2 { font-size: 24px; }
+  .step { padding-left: 12px; }
+}

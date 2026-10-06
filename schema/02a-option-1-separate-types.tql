@@ -1,0 +1,10 @@
+# Option 1 (for discussion): one entity type per column.
+# Don't run this in the same database as Option 2.
+define
+
+entity mill;
+entity mill_group;
+entity refinery;
+entity refinery_group;
+entity exporter;
+entity exporter_group;

@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 290" class="er" role="img" aria-label="ER diagram, option 1: separate entity types mill, refinery and exporter, each belonging to its own group type">
+  <g class="links" stroke="black" fill="none">
+    <line x1="120" y1="78" x2="120" y2="118"/><line x1="120" y1="172" x2="120" y2="212"/>
+    <line x1="350" y1="78" x2="350" y2="118"/><line x1="350" y1="172" x2="350" y2="212"/>
+    <line x1="580" y1="78" x2="580" y2="118"/><line x1="580" y1="172" x2="580" y2="212"/>
+  </g>
+  <g class="ent" fill="white" stroke="black">
+    <rect x="40" y="30" width="160" height="48"/><rect x="270" y="30" width="160" height="48"/><rect x="500" y="30" width="160" height="48"/>
+    <rect x="40" y="212" width="160" height="48"/><rect x="270" y="212" width="160" height="48"/><rect x="500" y="212" width="160" height="48"/>
+  </g>
+  <g class="rel" fill="white" stroke="black">
+    <polygon points="120,118 175,145 120,172 65,145"/>
+    <polygon points="350,118 405,145 350,172 295,145"/>
+    <polygon points="580,118 635,145 580,172 525,145"/>
+  </g>
+  <g text-anchor="middle" dominant-baseline="middle">
+    <text x="120" y="54" class="name">mill_group</text><text x="350" y="54" class="name">refinery_group</text><text x="580" y="54" class="name">exporter_group</text>
+    <text x="120" y="145" class="relname">groups</text><text x="350" y="145" class="relname">groups</text><text x="580" y="145" class="relname">groups</text>
+    <text x="120" y="236" class="name">mill</text><text x="350" y="236" class="name">refinery</text><text x="580" y="236" class="name">exporter</text>
+  </g>
+</svg>

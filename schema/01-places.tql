@@ -1,0 +1,16 @@
+define
+
+### Places ###
+
+attribute country_name, value string;
+attribute province_name, value string;
+attribute kabupaten_name, value string;
+
+entity country,
+  owns country_name @key;
+
+entity province,
+  owns province_name @key;
+
+entity kabupaten,
+  owns kabupaten_name @key;

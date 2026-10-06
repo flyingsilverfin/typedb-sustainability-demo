@@ -1,0 +1,5 @@
+define
+
+# companies can also be owned (by a parent company)
+entity company,
+  plays ownership:owned @card(0..1);

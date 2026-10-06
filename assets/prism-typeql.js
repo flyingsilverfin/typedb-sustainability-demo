@@ -1,0 +1,79 @@
+// TypeQL grammar for Prism, copied verbatim from the TypeDB website
+// (typedb-web: common/lib/prism/prism-typeql.js) so snippets highlight exactly as on typedb.com.
+Prism.languages["typeql"] = {
+  comment: {
+    pattern: /#.*/
+  },
+  error: {
+    pattern: /ERROR:.*/
+  },
+  string: {
+    pattern: /(".*?")|('.*?')/
+  },
+  keyword: {
+    pattern: /((?:(?![-a-zA-Z_0-9]|\$|\?).)|^|\s)(define|undefine|redefine|match|with|fun|struct|return|reduce|groupby|get|select|assert|insert|delete|update|put|let|std|median|mean|max|min|first|sum|count|group|where|limit|offset|sort|asc|desc|when|then|fetch|rule|like|floor|ceil|round|abs)(?![-a-zA-Z_0-9])/,
+    lookbehind: true
+  },
+  constraint: {
+    pattern: /((?:(?![-a-zA-Z_0-9]|\$|\?).)|^|\s)(as|sub!|sub|has|has!|owns|relates|relates!|links|links!|plays|label|value|isa!|isa|contains|iid|is|or|try|not)(?![-a-zA-Z_0-9])/,
+    lookbehind: true
+  },
+  annotation: {
+    pattern: /((?:(?![-a-zA-Z_0-9]|\$|\?).)|^|\s)(@values|@abstract|@regex|@key|@unique|@card|@distinct|@independent|@cascade|@debug|@replace|@doc|@meta)(?![-a-zA-Z_0-9])/,
+    lookbehind: true
+  },
+  type: {
+    pattern: /((?:(?![-a-zA-Z_0-9]|\$|\?).)|^|\s)(entity|relation|attribute|thing)(?![-a-zA-Z_0-9])/,
+    lookbehind: true
+  },
+  modifier: {
+    // TypeQL 3.x value types (see typeql grammar value_type_primitive), plus legacy 2.x long/int.
+    // datetime-tz before datetime before date: longest-first so prefixes don't shadow longer names.
+    pattern: /((?:(?![-a-zA-Z_0-9]|\$|\?).)|^|\s)(boolean|integer|long|int|double|decimal|datetime-tz|datetime|date|duration|string)(?![-a-zA-Z_0-9])/,
+    lookbehind: true
+  },
+  special: {
+    pattern: /typeql>>|answers>>|\.\.\./
+  },
+  variable: {
+    pattern: /[$?][-a-zA-Z_0-9]+/,
+    alias: "variable"
+  },
+  duration: {
+    // ISO-8601-style TypeQL duration literals, e.g. P7D, P1Y2M, P2W, P1DT2H30M, PT0.5S
+    pattern: /((?:(?![-a-zA-Z_0-9]|\$|\?).)|^|\s)P(?=\d|T\d)(?:\d+W|(?:\d+Y)?(?:\d+M)?(?:\d+D)?(?:T(?:\d+H)?(?:\d+M)?(?:\d+(?:\.\d+)?S)?)?)(?![-a-zA-Z_0-9])/,
+    lookbehind: true,
+    alias: "datetime"
+  },
+  datetime: {
+    pattern: /\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}(:\d{2}(:\d{2})?)?)?/,
+    alias: "datetime"
+  },
+  number: {
+    // note: [^a-zA-Z0-9-_?$] is equivalent to (?:(?![-a-zA-Z_0-9]|\$|\?).) used above
+    pattern: /([^a-zA-Z0-9-_?$]|^|\s)[0-9]+(\.[0-9][0-9]*)?(?![a-zA-Z0-9_])/,
+    lookbehind: true,
+    alias: "number"
+  },
+  negated_number: {
+    pattern: /([^a-zA-Z0-9-_?$]|^|\s)-[0-9]+(\.[0-9][0-9]*)?(?![a-zA-Z0-9_])/,
+    lookbehind: true,
+    alias: "number"
+  },
+  constant: {
+    pattern: /([^a-zA-Z0-9-_?$]|^|\s)(true|false)(?![-a-zA-Z_0-9])/,
+    lookbehind: true
+  },
+  object_label: {
+    pattern: /<[^>]+>/,
+    alias: "grammar"
+  },
+  operator: {
+    pattern: /=|;|\.|\+|\*|\/|\^|,|\(|\)|:|{|}|\[|]|!=|>|<|>=|<=|->|\?/,
+    alias: "operator"
+  },
+  spaced_operator: {
+    pattern: / (-) /,
+    alias: "operator"
+  }
+};

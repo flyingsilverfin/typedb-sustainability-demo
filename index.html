@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Executable ER Models with TypeDB</title>
+  <meta name="description" content="ER 2026 tutorial: building an executable entity-relationship model of a palm oil supply chain in TypeDB.">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<div class="page">
+
+  <header class="hero">
+    <p class="eyebrow">ER 2026 · St. John's · Tutorial · Wed 7 Oct</p>
+    <h1>Building Executable Entity-Relationship Models</h1>
+    <p>We model a real palm oil supply chain, from Indonesian districts and mills to EU importers, directly as a TypeDB schema, then load and query it. Everything you need to follow along is on this page.</p>
+  </header>
+
+  <nav class="toc" aria-label="Sections">
+    <a href="#setup">Setup</a>
+    <a href="#places">1 · Places</a>
+    <a href="#companies">2 · Mills, refineries, exporters</a>
+    <a href="#commodities">3 · Commodities</a>
+    <a href="#trade-flows">4 · Trade flows</a>
+    <a href="#full-model">Full model</a>
+    <a href="#data">Data</a>
+  </nav>
+
+  <!-- ================================================================== SETUP -->
+  <section id="setup">
+    <h2>Setup</h2>
+    <p class="lead">You need a TypeDB server and a web browser.</p>
+    <ol class="setup">
+      <li>
+        <b>Set up a TypeDB server</b>, either:
+        <ul>
+          <li>locally, with the <a href="https://typedb.com/docs/home/install/ce/#_installer_script" target="_blank" rel="noopener">installer script</a> or <a href="https://typedb.com/docs/home/install/ce/#_docker" target="_blank" rel="noopener">Docker</a>, or</li>
+          <li>as a free cloud instance: <a href="https://cloud.typedb.com/sign-in" target="_blank" rel="noopener">cloud.typedb.com</a></li>
+        </ul>
+      </li>
+      <li>
+        <b>Note the address, username and password</b>
+        <ul>
+          <li>Local: <code>http://localhost:8000</code>, <code>admin</code>, <code>password</code> by default</li>
+          <li>Cloud: copy them from the cloud dashboard</li>
+        </ul>
+      </li>
+      <li>
+        <b>Connect TypeDB Studio</b>
+        <ul>
+          <li>Open <a href="https://studio.typedb.com" target="_blank" rel="noopener">studio.typedb.com</a></li>
+          <li>Connect (at the top) with your credentials</li>
+          <li>Create a new, empty database</li>
+        </ul>
+      </li>
+    </ol>
+    <p class="ready">Ready to go!</p>
+  </section>
+
+  <!-- ================================================================== TUTORIAL -->
+  <h2>The model</h2>
+  <p class="lead">Each step shows the ER view first. The TypeQL is folded away, so you can try writing it yourself before you look. Run each snippet as a <b>schema</b> transaction and commit.</p>
+
+  <!-- 1. Places -->
+  <section id="places" class="step">
+    <h3>1 · Initial definitions: places</h3>
+    <p>Reading the header and a first row, the easiest things to model are the places: the country, the province and the <i>kabupaten</i> (district) the palm oil comes from.</p>
+    <figure class="diagram" data-svg="diagrams/places.svg">
+      <figcaption>Three entity types, each identified by its name (underlined = key).</figcaption>
+    </figure>
+    <details class="reveal">
+      <summary>Places in TypeQL <span class="hint">snippet 1</span></summary>
+      <div class="body"><div data-code="schema/01-places.tql"></div></div>
+    </details>
+  </section>
+
+  <!-- 2. Companies and facilities -->
+  <section id="companies" class="step">
+    <h3>2 · Mills, refineries, exporters</h3>
+    <p>The next columns are harder: the same names turn up as a mill's group, a refinery, an exporter and an importer. Is a <code>refinery_group</code> a different kind of thing from an <code>exporter_group</code>?</p>
+
+    <h4>Option 1: one entity type per column</h4>
+    <figure class="diagram" data-svg="diagrams/option-1.svg">
+      <figcaption>Taking the CSV header literally: six entity types.</figcaption>
+    </figure>
+    <details class="reveal">
+      <summary>Option 1 in TypeQL <span class="hint">for discussion only, don't run it alongside option 2</span></summary>
+      <div class="body"><div data-code="schema/02a-option-1-separate-types.tql"></div></div>
+    </details>
+
+    <h4>Option 2: companies and facilities</h4>
+    <p>The data sheet says each <code>*_group</code> column "groups the [X] column into parent companies where applicable". So there are really only <b>companies</b> and <b>facilities</b> (mills and refineries), linked by <b>ownership</b>, and <i>exporter</i> is a role a company plays, not a kind of company.</p>
+    <figure class="diagram" data-svg="diagrams/option-2.svg">
+      <figcaption>Dashed box = abstract type. The dashed <i>owned</i> line is added in snippet 3.</figcaption>
+    </figure>
+    <details class="reveal">
+      <summary>Option 2 in TypeQL <span class="hint">snippet 2</span></summary>
+      <div class="body"><div data-code="schema/02b-option-2-companies-facilities.tql"></div></div>
+    </details>
+
+    <h4>Companies owning companies</h4>
+    <p>In some rows <code>LDC EAST INDONESIA</code> is both the refinery and the exporter, and <code>LOUIS DREYFUS</code> is the refinery's group. We read this as: the company <i>LDC EAST INDONESIA</i> owns the refinery of the same name and handles exports, and <i>LOUIS DREYFUS</i> is its parent company. That needs companies to be ownable too.</p>
+    <details class="reveal">
+      <summary>Ownership extension <span class="hint">snippet 3</span></summary>
+      <div class="body"><div data-code="schema/03-company-ownership.tql"></div></div>
+    </details>
+  </section>
+
+  <!-- 3. Commodities -->
+  <section id="commodities" class="step">
+    <h3>3 · Commodities</h3>
+    <p>The data has two commodities, <code>PALM OIL</code> and <code>REFINED PALM OIL</code>. How would you model them?</p>
+    <div class="options">
+      <div><b>a)</b> one entity type with an attribute</div>
+      <div><b>b)</b> two independent entity types</div>
+      <div><b>c)</b> one abstract type with two subtypes</div>
+    </div>
+    <details class="reveal">
+      <summary>Option a) in TypeQL <span class="hint">snippet 4</span></summary>
+      <div class="body"><div data-code="schema/04a-commodities.tql"></div></div>
+    </details>
+    <div class="callout"><b>Challenge:</b> option a) allows at most two commodity instances, because the name is a key restricted to two values. How would you get the same guarantee with option c)?</div>
+    <details class="reveal">
+      <summary>Challenge: option c) in TypeQL <span class="hint">one possible answer</span></summary>
+      <div class="body"><div data-code="schema/04c-commodities-subtypes-challenge.tql"></div></div>
+    </details>
+  </section>
+
+  <!-- 4. Trade flows -->
+  <section id="trade-flows" class="step">
+    <h3>4 · Trade flows</h3>
+    <p>Each row of the data is one trade flow linking a district, a mill, sometimes a refinery (crude palm oil isn't refined), an exporter, an importer, a destination country and a commodity. How would you model the flow itself?</p>
+    <figure class="diagram" data-svg="diagrams/trade-flow.svg">
+      <figcaption>One 6- or 7-way relationship. Dashed line = optional role. <i>company</i> plays two roles: exporter and importer.</figcaption>
+    </figure>
+    <details class="reveal">
+      <summary>Trade flow in TypeQL <span class="hint">snippet 5</span></summary>
+      <div class="body"><div data-code="schema/05-trade-flow.tql"></div></div>
+    </details>
+  </section>
+
+  <!-- Full model -->
+  <section id="full-model">
+    <h2>Full model</h2>
+    <p class="lead">Snippets 1–5 combined into a single <code>define</code> query. Use this if you're joining late or want a clean start: run it in a <b>schema</b> transaction and commit.</p>
+    <div data-code="schema/full-schema.tql" class="tall"></div>
+  </section>
+
+  <!-- ================================================================== DATA -->
+  <section id="data">
+    <h2>Data</h2>
+    <p>The data comes from <a href="https://trase.earth" target="_blank" rel="noopener">Trase</a>'s open supply-chain data: 81 real trade flows of palm oil from East Kalimantan, Indonesia, to EU countries in 2022.</p>
+    <p class="cite">Benedict, J. J., Biddle, H., Gollnow, F., Heilmayr, R., Mueller, C., Ribeiro, V., &amp; Suavet, C. (2024). <i>Indonesia palm oil supply chain (2018–2022)</i> (Version 1.2) [Data set]. Trase. <a href="https://doi.org/10.48650/X83N-7M36" target="_blank" rel="noopener">https://doi.org/10.48650/X83N-7M36</a>. Licensed CC BY 4.0.</p>
+
+    <div class="facts">
+      <div><b>81</b><span>trade flows (71 refined, 10 crude)</span></div>
+      <div><b>41</b><span>mills</span></div>
+      <div><b>6</b><span>refineries</span></div>
+      <div><b>37</b><span>companies</span></div>
+      <div><b>6</b><span>EU destination countries</span></div>
+      <div><b>5,505 ha</b><span>10-year deforestation exposure</span></div>
+    </div>
+
+    <details class="reveal">
+      <summary>How this excerpt was made <span class="hint">simplifications</span></summary>
+      <div class="body">
+        <ul>
+          <li><b>Rows:</b> from the full dataset (~1.7M rows), only 2022 flows from East Kalimantan to the EU with all actors known, then 81 of those, chosen so that every modelling case appears. No values were invented or edited.</li>
+          <li><b>Columns:</b> 16 of ~35 kept. Dropped: year, Trase IDs and country codes, port of export, economic bloc, sustainability scores and commitments, emissions metrics.</li>
+          <li><b>Interpretation:</b> <code>NOT REFINED</code> means the flow has no refiner. When <code>importer_group</code> equals <code>importer</code>, no parent is recorded. A refinery that shares its name with an exporter is read as owned by that company.</li>
+          <li><b>Caveat:</b> Trase flows are <i>modelled</i> from customs, production and facility data, not observed shipments. The insert query below rounds values (volume 3 dp, deforestation 4 dp, USD 2 dp).</li>
+        </ul>
+      </div>
+    </details>
+
+    <details class="reveal">
+      <summary>Browse the data <span class="hint">81 rows</span></summary>
+      <div class="body">
+        <div data-csv="data/palm_kaltim_eu_2022_demo.csv"></div>
+        <p><a data-source-link="data/palm_kaltim_eu_2022_demo.csv" href="data/palm_kaltim_eu_2022_demo.csv">View the CSV file</a></p>
+      </div>
+    </details>
+
+    <h3>Load it</h3>
+    <p>One <code>insert</code> query loads everything. Run it in a <b>write</b> transaction on top of the full model, then commit.</p>
+    <div data-code="data/insert-data.tql" class="tall"></div>
+  </section>
+
+  <footer>
+    <p>Data: Trase, Indonesia palm oil supply chain (2018–2022), CC BY 4.0, <a href="https://doi.org/10.48650/X83N-7M36" target="_blank" rel="noopener">doi:10.48650/X83N-7M36</a>. Tutorial by Joshua Send, <a href="https://typedb.com" target="_blank" rel="noopener">TypeDB</a>. Model formalised in Dorn &amp; Pribadi, <i>TypeQL: A Type-Theoretic &amp; Polymorphic Query Language</i>, SIGMOD 2024.</p>
+  </footer>
+</div>
+<script>window.Prism = { manual: true };</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+<script src="assets/prism-typeql.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>

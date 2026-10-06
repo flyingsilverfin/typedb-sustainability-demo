@@ -1,0 +1,22 @@
+define
+
+### Companies and facilities ###
+
+attribute facility_name, value string;
+attribute company_name, value string;
+
+entity facility @abstract,
+  owns facility_name,
+  plays ownership:owned @card(0..1);   # at most 1 owner
+entity mill,
+  sub facility;
+entity refinery,
+  sub facility;
+
+entity company,
+  owns company_name @key,
+  plays ownership:owner;
+
+relation ownership,
+  relates owner @card(1),
+  relates owned @card(1);

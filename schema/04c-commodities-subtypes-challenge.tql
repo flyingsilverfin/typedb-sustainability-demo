@@ -1,0 +1,17 @@
+# Challenge solution, option c): 1 abstract type, 2 subtypes.
+# Each subtype owns the name as a key restricted to a single value,
+# so there can be at most one instance of each.
+# Don't run this in the same database as option a).
+define
+
+attribute commodity_name, value string;
+
+entity commodity @abstract;
+
+entity palm_oil,
+  sub commodity,
+  owns commodity_name @key @values("PALM OIL");
+
+entity refined_palm_oil,
+  sub commodity,
+  owns commodity_name @key @values("REFINED PALM OIL");

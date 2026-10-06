@@ -1,0 +1,9 @@
+define
+
+### Commodities ###
+
+attribute commodity_name,
+  value string @values("PALM OIL", "REFINED PALM OIL");  # validated enum
+
+entity commodity,
+  owns commodity_name @key;
