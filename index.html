@@ -209,6 +209,24 @@
   </section>
 
 </div>
+<aside class="help" id="help">
+  <button type="button" class="help-toggle" aria-expanded="false" aria-controls="help-panel">Questions or help?</button>
+  <form class="help-panel" id="help-panel" hidden>
+    <div class="help-head">
+      <b>Questions or help?</b>
+      <button type="button" class="help-close" aria-label="Close">×</button>
+    </div>
+    <label>Your name <span>(optional)</span>
+      <input name="name" maxlength="80" autocomplete="name">
+    </label>
+    <label>Message
+      <textarea name="message" rows="4" maxlength="1500" required placeholder="Stuck on a step? Ask away."></textarea>
+    </label>
+    <button type="submit" class="help-send">Send to Joshua</button>
+    <p class="help-status" role="status"></p>
+  </form>
+</aside>
+
 <script>window.Prism = { manual: true };</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
 <script src="assets/prism-typeql.js"></script>
