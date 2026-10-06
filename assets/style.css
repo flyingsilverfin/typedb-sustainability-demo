@@ -247,10 +247,10 @@ table.data td.placeholder { color: var(--muted); font-style: italic; }
 .help-status { margin: 0; font-size: 13px; color: var(--muted); }
 .help-status:empty { display: none; }
 
-/* wide screens: a column on the right; the page content centres in the space left of it */
+/* wide screens: bottom-right, in a column the page content leaves free */
 @media (min-width: 1240px) {
   body { padding-right: 330px; }
-  .help { top: 96px; right: 24px; width: 290px; }
+  .help { bottom: 24px; right: 24px; width: 290px; }
 }
 
 /* narrow screens: compact bar pinned to the bottom (message + send only) */
