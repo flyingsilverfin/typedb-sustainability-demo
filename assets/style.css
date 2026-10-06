@@ -215,3 +215,9 @@ footer { margin-top: 64px; padding-top: 16px; border-top: 1px solid var(--line);
   h2 { font-size: 24px; }
   .step { padding-left: 12px; }
 }
+
+/* data excerpts inside the tutorial steps */
+.table-wrap.excerpt { max-height: none; margin: 12px 0 6px; }
+table.data td.repeated { color: var(--accent); font-weight: 600; }
+table.data td.placeholder { color: var(--muted); font-style: italic; }
+.excerpt-note { color: var(--muted); font-size: 13px; margin: 0 0 14px; }

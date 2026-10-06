@@ -78,6 +78,10 @@
   <section id="companies" class="step">
     <h3>2 · Mills, refineries, exporters</h3>
     <p>The next columns are harder: the same names turn up as a mill's group, a refinery, an exporter and an importer. Is a <code>refinery_group</code> a different kind of thing from an <code>exporter_group</code>?</p>
+    <div data-csv="data/palm_kaltim_eu_2022_demo.csv"
+         data-columns="mill,mill_group,refinery,refinery_group,exporter,exporter_group,importer,importer_group"
+         data-rows="mill=AGRI EASTBORNEO KENCANA|mill=HARAPAN RIMBA RAYA (SEI KEDANG)|mill=BORNEO BHAKTI SEJAHTERA|mill=DWIWIRA LESTARI JAYA&amp;refinery=NOT REFINED"></div>
+    <p class="excerpt-note">A few real rows (scroll sideways for more columns). Highlighted: a name that appears more than once in the same row. <i>NOT REFINED</i> marks crude palm oil.</p>
 
     <h4>Option 1: one entity type per column</h4>
     <figure class="diagram" data-svg="diagrams/option-1.svg">
@@ -99,6 +103,9 @@
     </details>
 
     <h4>Companies owning companies</h4>
+    <div data-csv="data/palm_kaltim_eu_2022_demo.csv"
+         data-columns="mill,refinery,refinery_group,exporter,exporter_group"
+         data-rows="mill=DWIWIRA LESTARI JAYA&amp;refinery=LDC EAST INDONESIA"></div>
     <p>In some rows <code>LDC EAST INDONESIA</code> is both the refinery and the exporter, and <code>LOUIS DREYFUS</code> is the refinery's group. We read this as: the company <i>LDC EAST INDONESIA</i> owns the refinery of the same name and handles exports, and <i>LOUIS DREYFUS</i> is its parent company. That needs companies to be ownable too.</p>
     <details class="reveal">
       <summary>Ownership extension <span class="hint">snippet 3</span></summary>

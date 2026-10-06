@@ -74,20 +74,44 @@ async function renderSvg(el) {
   }
 }
 
-// ---- CSV table (the demo data has no quoted fields) ----
+// ---- CSV tables (the demo data has no quoted fields) ----
+// Optional excerpt attributes:
+//   data-columns="mill,refinery"                    show only these columns
+//   data-rows="mill=A|mill=B&refinery=C"            show the first row matching each `|`-separated condition
+// In excerpts, a name repeated across columns of the same row is highlighted.
+
+const PLACEHOLDER = "NOT REFINED";
+
+function excerpt(header, rows, columnSpec, rowSpec) {
+  let picked = rows;
+  if (rowSpec) {
+    picked = rowSpec.split("|").map((condition) => {
+      const tests = condition.split("&").map((term) => term.split("="));
+      return rows.find((r) => tests.every(([col, value]) => r[header.indexOf(col.trim())] === value.trim()));
+    }).filter(Boolean);
+  }
+  const columns = columnSpec ? columnSpec.split(",").map((c) => header.indexOf(c.trim())) : header.map((_, i) => i);
+  return { header: columns.map((i) => header[i]), rows: picked.map((r) => columns.map((i) => r[i])) };
+}
 
 async function renderCsv(el) {
   const path = el.dataset.csv;
+  const isExcerpt = Boolean(el.dataset.columns || el.dataset.rows);
   try {
-    const [header, ...rows] = (await fetchText(path)).trim().split(/\r?\n/).map((line) => line.split(","));
+    const [allHeader, ...allRows] = (await fetchText(path)).trim().split(/\r?\n/).map((line) => line.split(","));
+    const { header, rows } = excerpt(allHeader, allRows, el.dataset.columns, el.dataset.rows);
     const isNumeric = header.map((_, i) => rows.every((r) => r[i] !== "" && !isNaN(Number(r[i]))));
-    const cell = (v, i) => {
+    const cell = (row) => (v, i) => {
+      const classes = [];
+      if (isNumeric[i]) classes.push("num");
+      if (v === PLACEHOLDER) classes.push("placeholder");
+      else if (isExcerpt && row.filter((other) => other === v).length > 1) classes.push("repeated");
       const shown = isNumeric[i] ? Number(v).toLocaleString(undefined, { maximumFractionDigits: 2 }) : v;
-      return `<td${isNumeric[i] ? ' class="num"' : ""}>${escapeHtml(shown)}</td>`;
+      return `<td${classes.length ? ` class="${classes.join(" ")}"` : ""}>${escapeHtml(shown)}</td>`;
     };
-    el.innerHTML = `<div class="table-wrap"><table class="data">
+    el.innerHTML = `<div class="table-wrap${isExcerpt ? " excerpt" : ""}"><table class="data">
       <thead><tr>${header.map((h) => `<th>${escapeHtml(h)}</th>`).join("")}</tr></thead>
-      <tbody>${rows.map((r) => `<tr>${r.map(cell).join("")}</tr>`).join("")}</tbody>
+      <tbody>${rows.map((r) => `<tr>${r.map(cell(r)).join("")}</tr>`).join("")}</tbody>
     </table></div>`;
   } catch (e) {
     el.innerHTML = `<p class="error">Could not load ${path} (${escapeHtml(e.message)}).</p>`;
