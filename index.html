@@ -64,6 +64,7 @@
   <!-- 1. Places -->
   <section id="places" class="step">
     <h3>1 · Initial definitions: places</h3>
+    <div class="step-body">
     <p>Reading the header and a first row, the easiest things to model are the places: the country, the province and the <i>kabupaten</i> (district) the palm oil comes from.</p>
     <figure class="diagram" data-svg="diagrams/places.svg">
       <figcaption>Three entity types, each identified by its name (underlined = key).</figcaption>
@@ -71,12 +72,13 @@
     <details class="reveal">
       <summary>Places in TypeQL <span class="hint">snippet 1</span></summary>
       <div class="body"><div data-code="schema/01-places.tql"></div></div>
-    </details>
+    </details>    </div>
   </section>
 
   <!-- 2. Companies and facilities -->
   <section id="companies" class="step">
     <h3>2 · Mills, refineries, exporters</h3>
+    <div class="step-body">
     <p>The next columns are harder: the same names turn up as a mill's group, a refinery, an exporter and an importer. Is a <code>refinery_group</code> a different kind of thing from an <code>exporter_group</code>?</p>
     <div data-csv="data/palm_kaltim_eu_2022_demo.csv"
          data-columns="mill,mill_group,refinery,refinery_group,exporter,exporter_group,importer,importer_group"
@@ -110,12 +112,13 @@
     <details class="reveal">
       <summary>Ownership extension <span class="hint">snippet 3</span></summary>
       <div class="body"><div data-code="schema/03-company-ownership.tql"></div></div>
-    </details>
+    </details>    </div>
   </section>
 
   <!-- 3. Commodities -->
   <section id="commodities" class="step">
     <h3>3 · Commodities</h3>
+    <div class="step-body">
     <p>The data has two commodities, <code>PALM OIL</code> and <code>REFINED PALM OIL</code>. How would you model them?</p>
     <div class="options">
       <div><b>a)</b> one entity type with an attribute</div>
@@ -130,12 +133,13 @@
     <details class="reveal">
       <summary>Challenge: option c) in TypeQL <span class="hint">one possible answer</span></summary>
       <div class="body"><div data-code="schema/04c-commodities-subtypes-challenge.tql"></div></div>
-    </details>
+    </details>    </div>
   </section>
 
   <!-- 4. Trade flows -->
   <section id="trade-flows" class="step">
     <h3>4 · Trade flows</h3>
+    <div class="step-body">
     <p>Each row of the data is one trade flow linking a district, a mill, sometimes a refinery (crude palm oil isn't refined), an exporter, an importer, a destination country and a commodity. How would you model the flow itself?</p>
     <figure class="diagram" data-svg="diagrams/trade-flow.svg">
       <figcaption>One 6- or 7-way relationship. Dashed line = optional role. <i>company</i> plays two roles: exporter and importer.</figcaption>
@@ -143,7 +147,7 @@
     <details class="reveal">
       <summary>Trade flow in TypeQL <span class="hint">snippet 5</span></summary>
       <div class="body"><div data-code="schema/05-trade-flow.tql"></div></div>
-    </details>
+    </details>    </div>
   </section>
 
   <!-- Full model -->
