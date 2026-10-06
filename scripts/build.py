@@ -34,7 +34,7 @@ def build_full_schema() -> str:
     parts = ["define"]
     for path in SCHEMA_SNIPPETS:
         body = [line for line in (ROOT / path).read_text().splitlines() if line.strip() != "define"]
-        parts.append(f"\n# ---- {Path(path).name} ----")
+        parts.append("")
         parts.append("\n".join(body).strip("\n"))
     return "\n".join(parts) + "\n"
 

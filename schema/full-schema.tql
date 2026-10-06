@@ -1,6 +1,5 @@
 define
 
-# ---- 01-places.tql ----
 ### Places ###
 
 attribute country_name, value string;
@@ -21,7 +20,6 @@ entity kabupaten,
   sub place,
   owns kabupaten_name @key;
 
-# ---- 01b-places-containment.tql ----
 ### Places hierarchy ###
 
 relation containment,
@@ -35,7 +33,6 @@ entity province,
 entity kabupaten,
   plays containment:child @card(0..1);   # at most 1 parent
 
-# ---- 02b-option-2-companies-facilities.tql ----
 ### Companies and facilities ###
 
 attribute facility_name, value string;
@@ -57,12 +54,10 @@ relation ownership,
   relates owner @card(1),
   relates owned @card(1);
 
-# ---- 03-company-ownership.tql ----
 # companies can also be owned (by a parent company)
 entity company,
   plays ownership:owned @card(0..1);
 
-# ---- 04a-commodities.tql ----
 ### Commodities ###
 
 attribute commodity_name,
@@ -71,7 +66,6 @@ attribute commodity_name,
 entity commodity,
   owns commodity_name @key;
 
-# ---- 05-trade-flow.tql ----
 ### Trade flow ###
 
 attribute volume_tonnes, value double;
