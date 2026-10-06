@@ -187,7 +187,10 @@ ul,ol{padding-left:22px}
 <span class="k">attribute</span> facility_name, <span class="k">sub</span> name;
 <span class="k">attribute</span> company_name, <span class="k">sub</span> name;
 
+<span class="k">entity</span> legal_entity <span class="k">@abstract</span>;
+
 <span class="k">entity</span> facility <span class="k">@abstract</span>,
+  <span class="k">sub</span> legal_entity,
   <span class="k">owns</span> facility_name,
   <span class="k">plays</span> ownership:owned <span class="k">@card</span>(0..1);   <span class="c"># at most 1 owner</span>
 <span class="k">entity</span> mill,
@@ -196,6 +199,7 @@ ul,ol{padding-left:22px}
   <span class="k">sub</span> facility;
 
 <span class="k">entity</span> company,
+  <span class="k">sub</span> legal_entity,
   <span class="k">owns</span> company_name <span class="k">@key</span>,
   <span class="k">plays</span> ownership:owner;
 
@@ -244,7 +248,7 @@ ul,ol{padding-left:22px}
   <span class="k">plays</span> trade_flow:destination;
 <span class="k">entity</span> commodity,
   <span class="k">plays</span> trade_flow:commodity;</pre>
-<div class="box"><b>Design note to mention (or not):</b> <code>company</code> and <code>facility</code> share no supertype. That's fine for the model, but any "who controls this party?" function needs one version for companies and one for facilities (see Q7). A shared abstract <code>party</code> supertype would allow a single function. It's a nice "the model shapes the queries" aside.</div>
+<div class="box"><b>Design note:</b> <code>company</code> and <code>facility</code> share the abstract supertype <code>legal_entity</code>, so <code>match $x isa legal_entity;</code> returns all 84 mills, refineries and companies <span class="tag t">tested</span>. That also means a "who controls this party?" function can take a single <code>legal_entity</code> parameter instead of one version per kind (see Q7). If someone objects that a refinery isn't a legal person, a neutral name such as <code>party</code> answers it.</div>
 
 <h2 id="load">6. Part 2: loading</h2>
 <p>Hand out <code>data/insert-data.tql</code>: one <code>insert</code> query. <span class="tag t">tested</span>: its contents were compared as sets against the CSV (every entity, ownership and flow).</p>

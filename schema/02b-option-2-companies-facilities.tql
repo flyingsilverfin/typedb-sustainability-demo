@@ -5,7 +5,10 @@ define
 attribute facility_name, sub name;
 attribute company_name, sub name;
 
+entity legal_entity @abstract;
+
 entity facility @abstract,
+  sub legal_entity,
   owns facility_name,
   plays ownership:owned @card(0..1);   # at most 1 owner
 entity mill,
@@ -14,6 +17,7 @@ entity refinery,
   sub facility;
 
 entity company,
+  sub legal_entity,
   owns company_name @key,
   plays ownership:owner;
 
