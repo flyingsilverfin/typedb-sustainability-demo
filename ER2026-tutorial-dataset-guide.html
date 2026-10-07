@@ -87,7 +87,7 @@ ul,ol{padding-left:22px}
 <table>
 <tr><th>Path</th><th>What it is</th></tr>
 <tr><td><code>index.html</code>, <code>assets/</code>, <code>diagrams/</code></td><td>The tutorial web page (GitHub Pages)</td></tr>
-<tr><td><code>schema/01-…05-*.tql</code></td><td>The snippets in tutorial order (<code>01b</code> = snippet 1.1); <code>02a</code> and <code>04c</code> are discussion-only</td></tr>
+<tr><td><code>schema/01-…06-*.tql</code></td><td>The snippets in tutorial order (file number = snippet number); <code>03a</code> and <code>05c</code> are discussion-only</td></tr>
 <tr><td><code>schema/full-schema.tql</code></td><td><b>Generated:</b> the snippets merged into one <code>define</code> (§5)</td></tr>
 <tr><td><code>data/palm_kaltim_eu_2022_demo.csv</code></td><td>The 81-row demo data, 16 columns</td></tr>
 <tr><td><code>data/insert-data.tql</code></td><td><b>Generated:</b> one large <code>insert</code> for copy-paste</td></tr>
@@ -112,11 +112,11 @@ ul,ol{padding-left:22px}
 <div class="box warn"><b>Say this out loud:</b> Trase flows are <i>modelled</i> (SEI-PCS allocation), not observed shipments, and facility attribution comes from desk research by AidEnvironment and Auriga. The insert also rounds values (volume 3 dp, exposure 4 dp, USD 2 dp).</div>
 
 <h2 id="modelling">4. Part 1: the model (following <code>NOTES.md</code>)</h2>
-<div class="step"><h3>Step 1–2 · Read a row, start with places (snippets 1 and 1.1)</h3>
-<p>Country, province and kabupaten under an abstract <code>place</code>, each keyed by its own <code>*_name</code>. Every <code>*_name</code> attribute (places, facilities, companies, commodities) is a subtype of one <code>name</code> attribute, so <code>match $x has name $n;</code> finds every named thing. Snippet 1.1 adds a <code>containment</code> relation (parent/child) so kabupaten sit in provinces and provinces in countries.</p>
+<div class="step"><h3>Step 1–2 · Read a row, start with places (snippets 1 and 2)</h3>
+<p>Country, province and kabupaten under an abstract <code>place</code>, each keyed by its own <code>*_name</code>. Every <code>*_name</code> attribute (places, facilities, companies, commodities) is a subtype of one <code>name</code> attribute, so <code>match $x has name $n;</code> finds every named thing. Snippet 2 adds a <code>containment</code> relation (parent/child) so kabupaten sit in provinces and provinces in countries.</p>
 <p><b>Nice live moment</b> <span class="tag t">tested</span>: <code>match $x has name "LDC EAST INDONESIA";</code> returns <b>two</b> things, a <code>refinery</code> and a <code>company</code>. That's "same name, different thing" in one query.</p></div>
 
-<div class="step"><h3>Step 3 · Get stuck on the overlapping names, then read the dictionary (snippets 2–3)</h3>
+<div class="step"><h3>Step 3 · Get stuck on the overlapping names, then read the dictionary (snippets 3–4)</h3>
 <p>Checked on the full subset:</p>
 <ul>
 <li>3 names appear as both refinery and exporter.</li>
@@ -125,25 +125,25 @@ ul,ol{padding-left:22px}
 </ul>
 <blockquote>exporter: Company, including subsidiaries, responsible for exporting the commodity · *_group: groups the X column into parent companies where applicable</blockquote>
 <p>The conclusion: there are only <b>companies</b> and <b>facilities</b>, linked by <b>ownership</b>, and "exporter" is a role.</p>
-<p>The LDC reading: a company called LDC EAST INDONESIA exports and owns the refinery of the same name, and LOUIS DREYFUS is that company's parent. Snippet 3 (<code>company plays ownership:owned</code>) is the one-line schema change that allows this.</p>
+<p>The LDC reading: a company called LDC EAST INDONESIA exports and owns the refinery of the same name, and LOUIS DREYFUS is that company's parent. Snippet 4 (<code>company plays ownership:owned</code>) is the one-line schema change that allows this.</p>
 <p><b>Evidence for the LDC reading:</b> for all 3 refineries whose name matches an exporter, Trase's <code>refinery_group</code> equals that exporter's <code>exporter_group</code>, so the inferred chain agrees with the data. Separate <code>facility_name</code> and <code>company_name</code> attributes make "same name, different thing" visible in the schema.</p></div>
 
-<div class="step"><h3>Step 4 · Commodities (snippet 4)</h3>
+<div class="step"><h3>Step 4 · Commodities (snippet 5)</h3>
 <p>Option (a): one entity type, with <code>commodity_name @values("PALM OIL", "REFINED PALM OIL")</code> and <code>@key</code>.</p>
 <ul>
 <li>Note that <code>@key</code> plus <code>@values</code> already limits the type to at most two instances, which is a neat point.</li>
-<li>The model-(c) challenge answer (<code>04c</code>) puts <code>@key @values("…")</code> on each subtype's <code>owns</code>. <span class="tag t">tested</span>: a second <code>palm_oil</code> fails with a key violation, and a <code>palm_oil</code> named "REFINED PALM OIL" fails with a <code>@values</code> violation (CNT8).</li>
+<li>The model-(c) challenge answer (<code>05c</code>) puts <code>@key @values("…")</code> on each subtype's <code>owns</code>. <span class="tag t">tested</span>: a second <code>palm_oil</code> fails with a key violation, and a <code>palm_oil</code> named "REFINED PALM OIL" fails with a <code>@values</code> violation (CNT8).</li>
 </ul></div>
 
-<div class="step"><h3>Step 5 · The trade flow (snippet 5)</h3>
+<div class="step"><h3>Step 5 · The trade flow (snippet 6)</h3>
 <p>A 6-way relation, or 7-way when a refiner is present, with <code>refiner @card(0..1)</code>. Port and year are dropped on purpose; say so on stage.</p></div>
 
 <h2 id="schema">5. Full schema (<code>schema/full-schema.tql</code>) <span class="tag t">tested</span></h2>
-<p>Generated by <code>scripts/build.py</code> from the snippets in tutorial order: 1, 1.1, 2, 3, 4, 5. Validated on TypeDB CE 3.13.6, both in one go and snippet by snippet. Fixes the snippets need compared with <code>NOTES.md</code>:</p>
+<p>Generated by <code>scripts/build.py</code> from the snippets in tutorial order: 1–6. Validated on TypeDB CE 3.13.6, both in one go and snippet by snippet. Fixes the snippets need compared with <code>NOTES.md</code>:</p>
 <ul>
-<li><b><code>entity commidity</code></b> → <code>commodity</code> (snippet 4).</li>
-<li><b>Added <code>entity commodity, plays trade_flow:commodity;</code></b> (missing from snippet 5).</li>
-<li><b>Snippet 1.1:</b> <code>contains:child</code> → <code>containment:child</code>. The <code>@card(0..1)</code> goes on the <b>child</b> roles ("at most one parent"). On <code>province plays containment:parent</code> it would allow only one kabupaten per province, and the data has six.</li>
+<li><b><code>entity commidity</code></b> → <code>commodity</code> (snippet 5).</li>
+<li><b>Added <code>entity commodity, plays trade_flow:commodity;</code></b> (missing from snippet 6).</li>
+<li><b>Snippet 2:</b> <code>contains:child</code> → <code>containment:child</code>. The <code>@card(0..1)</code> goes on the <b>child</b> roles ("at most one parent"). On <code>province plays containment:parent</code> it would allow only one kabupaten per province, and the data has six.</li>
 </ul>
 <pre><span class="k">define</span>
 
@@ -500,7 +500,7 @@ For a deforestation-traceability question, that's a false accusation: APICAL wou
 <h2 id="risks">12. Risks &amp; to-dos</h2>
 <ul>
 <li><b>Re-run the schema, insert and validation queries once</b> on a TypeDB instance you choose. The renames to <code>volume_tonnes</code> and the uppercase commodity values were applied after the last test run.</li>
-<li><b>Fix NOTES snippet 4</b> (<code>commidity</code>) and <b>snippet 5</b> (add <code>commodity plays trade_flow:commodity</code>).</li>
+<li><b>Fix NOTES snippet 5</b> (<code>commidity</code>) and <b>snippet 6</b> (add <code>commodity plays trade_flow:commodity</code>).</li>
 <li><b>Write the lecture block (1.1–1.3)</b> and the remaining Part 3 queries in NOTES. §7 has tested candidates.</li>
 <li><b>Test pasting the 39 KB insert</b> into Studio or the browser environment over a slow connection, and have a local fallback.</li>
 <li><b>Licence:</b> CC BY 4.0, but Trase asks commercial users to get in touch, so send a note to info@trase.earth.</li>

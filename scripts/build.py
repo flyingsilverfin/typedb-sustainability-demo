@@ -16,11 +16,11 @@ ROOT = Path(__file__).resolve().parent.parent
 # Discussion-only alternatives (option 1, the commodity challenge) are deliberately excluded.
 SCHEMA_SNIPPETS = [
     "schema/01-places.tql",
-    "schema/01b-places-containment.tql",
-    "schema/02b-option-2-companies-facilities.tql",
-    "schema/03-company-ownership.tql",
-    "schema/04a-commodities.tql",
-    "schema/05-trade-flow.tql",
+    "schema/02-places-containment.tql",
+    "schema/03b-option-2-companies-facilities.tql",
+    "schema/04-company-ownership.tql",
+    "schema/05a-commodities.tql",
+    "schema/06-trade-flow.tql",
 ]
 FULL_SCHEMA = "schema/full-schema.tql"
 DATA_CSV = "data/palm_kaltim_eu_2022_demo.csv"
