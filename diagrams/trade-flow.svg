@@ -9,8 +9,8 @@
   </g>
   <g class="attr" fill="white" stroke="gray">
     <ellipse cx="135" cy="30" rx="74" ry="20"/>
-    <ellipse cx="410" cy="30" rx="62" ry="20" stroke-dasharray="5 4"/>
-    <ellipse cx="685" cy="30" rx="62" ry="20" stroke-dasharray="5 4"/>
+    <ellipse cx="410" cy="30" rx="62" ry="20"/>
+    <ellipse cx="685" cy="30" rx="62" ry="20"/>
     <ellipse cx="715" cy="395" rx="66" ry="20"/>
     <ellipse cx="685" cy="575" rx="62" ry="20"/>
     <ellipse cx="135" cy="575" rx="72" ry="20"/>
@@ -64,8 +64,8 @@
   </g>
   <g text-anchor="middle" dominant-baseline="middle">
     <text x="135" y="30" class="key" text-decoration="underline">kabupaten_name</text>
-    <text x="410" y="30">facility_name</text>
-    <text x="685" y="30">facility_name</text>
+    <text x="410" y="30">mill_name</text>
+    <text x="685" y="30">refinery_name</text>
     <text x="715" y="395" class="key" text-decoration="underline">company_name</text>
     <text x="685" y="575" class="key" text-decoration="underline">country_name</text>
     <text x="135" y="575" class="key" text-decoration="underline">commodity_name</text>

@@ -88,10 +88,10 @@ def build_insert() -> str:
 
     lines.append("\n## Facilities ##")
     for r in rows:
-        once(("mill", r["mill"]), f'{var("mill", r["mill"])} isa mill, has facility_name {q(r["mill"])};')
+        once(("mill", r["mill"]), f'{var("mill", r["mill"])} isa mill, has mill_name {q(r["mill"])};')
     for r in rows:
         if r["refinery"] != NOT_REFINED:
-            once(("ref", r["refinery"]), f'{var("ref", r["refinery"])} isa refinery, has facility_name {q(r["refinery"])};')
+            once(("ref", r["refinery"]), f'{var("ref", r["refinery"])} isa refinery, has refinery_name {q(r["refinery"])};')
 
     exporters = {r["exporter"] for r in rows}
     lines.append("\n## Ownership ##")

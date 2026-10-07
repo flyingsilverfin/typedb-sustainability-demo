@@ -3,18 +3,21 @@ define
 ### Companies and facilities ###
 
 attribute facility_name, sub name;
+attribute mill_name, sub facility_name;
+attribute refinery_name, sub facility_name;
 attribute company_name, sub name;
 
 entity legal_entity @abstract;
 
 entity facility @abstract,
   sub legal_entity,
-  owns facility_name,
   plays ownership:owned @card(0..1);   # at most 1 owner
 entity mill,
-  sub facility;
+  sub facility,
+  owns mill_name;
 entity refinery,
-  sub facility;
+  sub facility,
+  owns refinery_name;
 
 entity company,
   sub legal_entity,

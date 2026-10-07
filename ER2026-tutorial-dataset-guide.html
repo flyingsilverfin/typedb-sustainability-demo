@@ -175,7 +175,8 @@ ul,ol{padding-left:22px}
   <span class="k">relates</span> parent <span class="k">@card</span>(1),
   <span class="k">relates</span> child <span class="k">@card</span>(1);
 
-<span class="k">entity</span> country, <span class="k">plays</span> containment:parent;
+<span class="k">entity</span> country,
+  <span class="k">plays</span> containment:parent;
 <span class="k">entity</span> province,
   <span class="k">plays</span> containment:child <span class="k">@card</span>(0..1),   <span class="c"># at most 1 parent</span>
   <span class="k">plays</span> containment:parent;
@@ -185,18 +186,21 @@ ul,ol{padding-left:22px}
 <span class="c">### Companies and facilities ###</span>
 
 <span class="k">attribute</span> facility_name, <span class="k">sub</span> name;
+<span class="k">attribute</span> mill_name, <span class="k">sub</span> facility_name;
+<span class="k">attribute</span> refinery_name, <span class="k">sub</span> facility_name;
 <span class="k">attribute</span> company_name, <span class="k">sub</span> name;
 
 <span class="k">entity</span> legal_entity <span class="k">@abstract</span>;
 
 <span class="k">entity</span> facility <span class="k">@abstract</span>,
   <span class="k">sub</span> legal_entity,
-  <span class="k">owns</span> facility_name,
   <span class="k">plays</span> ownership:owned <span class="k">@card</span>(0..1);   <span class="c"># at most 1 owner</span>
 <span class="k">entity</span> mill,
-  <span class="k">sub</span> facility;
+  <span class="k">sub</span> facility,
+  <span class="k">owns</span> mill_name;
 <span class="k">entity</span> refinery,
-  <span class="k">sub</span> facility;
+  <span class="k">sub</span> facility,
+  <span class="k">owns</span> refinery_name;
 
 <span class="k">entity</span> company,
   <span class="k">sub</span> legal_entity,
