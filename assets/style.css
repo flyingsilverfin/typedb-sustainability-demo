@@ -36,8 +36,6 @@
   --link: var(--color-secondary-blue);
   --code-bg: var(--color-deep-purple);
   --code-font: Monaco, ui-monospace, SFMono-Regular, Menlo, monospace;
-  --attr-stroke: #7ba0ff;
-  --attr-fill: #131d34;
   color-scheme: dark;
 }
 @media (prefers-color-scheme: light) {
@@ -67,8 +65,6 @@
     --prism-very-grey: #666666;
     --prism-red: #cc3333;
 
-    --attr-stroke: #4070dd;
-    --attr-fill: #e0eaff;
     color-scheme: light;
   }
 }
@@ -133,9 +129,9 @@ figure.diagram figcaption { color: var(--muted); font-size: 13px; margin-top: 6p
 .er text { fill: var(--fg); font: 14px -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; }
 .er .links line, .er .links path, .er line.opt { stroke: var(--color-secondary-light-grey); }
 .er .ent rect, .er rect.abstract { fill: var(--color-deep-purple); stroke: var(--color-grey); stroke-width: 1.5; }
-.er polygon.rel, .er .rel polygon { fill: var(--color-secondary-purple); stroke: var(--color-secondary-pink); stroke-width: 1.5; }
+.er polygon.rel, .er .rel polygon { fill: var(--color-deep-purple); stroke: var(--color-grey); stroke-width: 1.5; }
 .er polygon.isa { fill: var(--color-deep-purple); stroke: var(--color-grey); }
-.er .attr ellipse { fill: var(--attr-fill); stroke: var(--attr-stroke); }  /* Studio graph colours for attributes */
+.er .attr ellipse { fill: var(--color-deep-purple); stroke: var(--color-secondary-grey); }
 .er text.name, .er text.relname { font-weight: 600; }
 .er text.role { fill: var(--muted); font-size: 12px; font-style: italic; }
 .er path.new { stroke: var(--accent); }
