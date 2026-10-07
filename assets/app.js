@@ -78,9 +78,10 @@ async function renderSvg(el) {
 // Optional excerpt attributes:
 //   data-columns="mill,refinery"                    show only these columns
 //   data-rows="mill=A|mill=B&refinery=C"            show the first row matching each `|`-separated condition
-// In excerpts, a name repeated across columns of the same row is highlighted.
+// In excerpts, a name repeated across columns of the same row is highlighted, one colour per name.
 
 const PLACEHOLDER = "NOT REFINED";
+const REPEAT_COLOURS = 4;
 
 function excerpt(header, rows, columnSpec, rowSpec) {
   let picked = rows;
@@ -101,17 +102,28 @@ async function renderCsv(el) {
     const [allHeader, ...allRows] = (await fetchText(path)).trim().split(/\r?\n/).map((line) => line.split(","));
     const { header, rows } = excerpt(allHeader, allRows, el.dataset.columns, el.dataset.rows);
     const isNumeric = header.map((_, i) => rows.every((r) => r[i] !== "" && !isNaN(Number(r[i]))));
-    const cell = (row) => (v, i) => {
+    // each name that repeats within a row gets its own colour, cycling through REPEAT_COLOURS
+    let nextColour = 0;
+    const colourOf = rows.map((row) => {
+      const colours = new Map();
+      row.forEach((v) => {
+        if (v !== PLACEHOLDER && !colours.has(v) && row.filter((other) => other === v).length > 1) {
+          colours.set(v, nextColour++ % REPEAT_COLOURS);
+        }
+      });
+      return colours;
+    });
+    const cell = (row, r) => (v, i) => {
       const classes = [];
       if (isNumeric[i]) classes.push("num");
       if (v === PLACEHOLDER) classes.push("placeholder");
-      else if (isExcerpt && row.filter((other) => other === v).length > 1) classes.push("repeated");
+      else if (isExcerpt && colourOf[r].has(v)) classes.push("repeated", `repeated-${colourOf[r].get(v)}`);
       const shown = isNumeric[i] ? Number(v).toLocaleString(undefined, { maximumFractionDigits: 2 }) : v;
       return `<td${classes.length ? ` class="${classes.join(" ")}"` : ""}>${escapeHtml(shown)}</td>`;
     };
     el.innerHTML = `<div class="table-wrap${isExcerpt ? " excerpt" : ""}"><table class="data">
       <thead><tr>${header.map((h) => `<th>${escapeHtml(h)}</th>`).join("")}</tr></thead>
-      <tbody>${rows.map((r) => `<tr>${r.map(cell(r)).join("")}</tr>`).join("")}</tbody>
+      <tbody>${rows.map((row, r) => `<tr>${row.map(cell(row, r)).join("")}</tr>`).join("")}</tbody>
     </table></div>`;
   } catch (e) {
     el.innerHTML = `<p class="error">Could not load ${path} (${escapeHtml(e.message)}).</p>`;

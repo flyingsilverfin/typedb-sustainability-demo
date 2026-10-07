@@ -8,3 +8,5 @@ entity refinery;
 entity refinery_group;
 entity exporter;
 entity exporter_group;
+
+# If you run this but want to undefine, say, the mill_group, run: undefine mill_group;

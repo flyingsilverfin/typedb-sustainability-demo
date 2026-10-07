@@ -219,7 +219,11 @@ footer { margin-top: 64px; padding-top: 16px; border-top: 1px solid var(--line);
 
 /* data excerpts inside the tutorial steps */
 .table-wrap.excerpt { max-height: none; margin: 12px 0 6px; }
-table.data td.repeated { color: var(--accent); font-weight: 600; }
+table.data td.repeated { font-weight: 600; }
+table.data td.repeated-0 { color: var(--accent); }
+table.data td.repeated-1 { color: var(--color-secondary-pink); }
+table.data td.repeated-2 { color: var(--link); }
+table.data td.repeated-3 { color: var(--prism-orange); }
 table.data td.placeholder { color: var(--muted); font-style: italic; }
 .excerpt-note { color: var(--muted); font-size: 13px; margin: 0 0 14px; }
 

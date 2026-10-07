@@ -70,7 +70,7 @@
          data-columns="country_of_production,province_of_production,kabupaten_of_production,country_of_first_import"
          data-rows="kabupaten_of_production=BERAU|kabupaten_of_production=PASER|kabupaten_of_production=KUTAI TIMUR"></div>
     <figure class="diagram" data-svg="diagrams/places.svg">
-      <figcaption>Three kinds of place, each identified by its name (underlined = key), under an abstract <i>place</i> (dashed).</figcaption>
+      <figcaption>Three kinds of place, each identified by its name (underlined = key), under an abstract <i>place</i> (dashed). Every <i>*_name</i> attribute is a subtype of one <i>name</i> attribute; ER has no notation for that, so it isn't drawn.</figcaption>
     </figure>
     <details class="reveal">
       <summary>Places in TypeQL <span class="hint">snippet 1</span></summary>
@@ -97,11 +97,11 @@
     <div data-csv="data/palm_kaltim_eu_2022_demo.csv"
          data-columns="mill,mill_group,refinery,refinery_group,exporter,exporter_group,importer,importer_group"
          data-rows="mill=AGRI EASTBORNEO KENCANA|mill=HARAPAN RIMBA RAYA (SEI KEDANG)|mill=BORNEO BHAKTI SEJAHTERA|mill=DWIWIRA LESTARI JAYA&amp;refinery=NOT REFINED"></div>
-    <p class="excerpt-note">A few real rows (scroll sideways for more columns). Highlighted: a name that appears more than once in the same row. <i>NOT REFINED</i> marks crude palm oil.</p>
+    <p class="excerpt-note">A few real rows (scroll sideways for more columns). Coloured: a name that appears more than once in the same row, each name in its own colour. <i>NOT REFINED</i> marks crude palm oil.</p>
 
     <h4>Option 1: one entity type per column</h4>
     <figure class="diagram" data-svg="diagrams/option-1.svg">
-      <figcaption>Taking the CSV header literally: six entity types.</figcaption>
+      <figcaption>Taking the CSV header literally: six entity types, each with its own name.</figcaption>
     </figure>
     <details class="reveal">
       <summary>Option 1 in TypeQL <span class="hint">for discussion only, don't run it alongside option 2</span></summary>
@@ -119,10 +119,11 @@
     </details>
 
     <h4>Companies owning companies</h4>
+    <p>In some rows <code>LDC EAST INDONESIA</code> is both the refinery and the exporter, and <code>LOUIS DREYFUS</code> is the refinery's group.</p>
     <div data-csv="data/palm_kaltim_eu_2022_demo.csv"
          data-columns="mill,refinery,refinery_group,exporter,exporter_group"
          data-rows="mill=DWIWIRA LESTARI JAYA&amp;refinery=LDC EAST INDONESIA"></div>
-    <p>In some rows <code>LDC EAST INDONESIA</code> is both the refinery and the exporter, and <code>LOUIS DREYFUS</code> is the refinery's group. We read this as: the company <i>LDC EAST INDONESIA</i> owns the refinery of the same name and handles exports, and <i>LOUIS DREYFUS</i> is its parent company. That needs companies to be ownable too.</p>
+    <p>We read this as: the company <i>LDC EAST INDONESIA</i> owns the refinery of the same name and handles exports, and <i>LOUIS DREYFUS</i> is its parent company. So companies need to be ownable by other companies too.</p>
     <details class="reveal">
       <summary>Ownership extension <span class="hint">snippet 4</span></summary>
       <div class="body"><div data-code="schema/04-company-ownership.tql"></div></div>
@@ -156,7 +157,7 @@
     <div class="step-body">
     <p>Each row of the data is one trade flow linking a district, a mill, sometimes a refinery (crude palm oil isn't refined), an exporter, an importer, a destination country and a commodity. How would you model the flow itself?</p>
     <figure class="diagram" data-svg="diagrams/trade-flow.svg">
-      <figcaption>One 6- or 7-way relationship. Dashed line = optional role. <i>company</i> plays two roles: exporter and importer.</figcaption>
+      <figcaption>One 6- or 7-way relationship. Dashed line = optional role. Dashed oval = attribute inherited from a supertype (<i>facility_name</i>, from <i>facility</i>). <i>company</i> plays two roles: exporter and importer.</figcaption>
     </figure>
     <details class="reveal">
       <summary>Trade flow in TypeQL <span class="hint">snippet 6</span></summary>
@@ -167,7 +168,7 @@
   <!-- Full model -->
   <section id="full-model">
     <h2>Full model</h2>
-    <p class="lead">Snippets 1–6 combined into a single <code>define</code> query. Use this if you're joining late or want a clean start.</p>
+    <p class="lead">Snippets 1–6 combined into a single <code>define</code> query. Use this if you want a clean start.</p>
     <div data-code="schema/full-schema.tql" class="tall"></div>
   </section>
 

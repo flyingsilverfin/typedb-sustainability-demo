@@ -1,4 +1,15 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 170" class="er" role="img" aria-label="ER diagram: containment relation; country contains province (parent, child) and province contains kabupaten (parent, child)">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 240" class="er" role="img" aria-label="ER diagram: containment relation; country contains province (parent, child) and province contains kabupaten (parent, child)">
+  <g class="links" stroke="black" fill="none">
+    <line x1="80" y1="60" x2="80" y2="130"/>
+    <line x1="350" y1="60" x2="350" y2="130"/>
+    <line x1="620" y1="60" x2="620" y2="130"/>
+  </g>
+  <g class="attr" fill="white" stroke="gray">
+    <ellipse cx="80" cy="40" rx="62" ry="20"/>
+    <ellipse cx="350" cy="40" rx="66" ry="20"/>
+    <ellipse cx="620" cy="40" rx="70" ry="20"/>
+  </g>
+  <g transform="translate(0,70)">
   <g class="links" stroke="black" fill="none">
     <line x1="140" y1="83" x2="155" y2="83"/>
     <line x1="275" y1="83" x2="290" y2="83"/>
@@ -24,5 +35,11 @@
     <text x="282" y="132" class="role">child</text>
     <text x="420" y="132" class="role">parent</text>
     <text x="552" y="132" class="role">child</text>
+  </g>
+  </g>
+  <g text-anchor="middle" dominant-baseline="middle">
+    <text x="80" y="40" class="key" text-decoration="underline">country_name</text>
+    <text x="350" y="40" class="key" text-decoration="underline">province_name</text>
+    <text x="620" y="40" class="key" text-decoration="underline">kabupaten_name</text>
   </g>
 </svg>
