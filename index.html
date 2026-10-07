@@ -27,6 +27,23 @@
     <a href="#queries">Querying</a>
   </nav>
 
+  <aside class="syntax" aria-label="TypeQL syntax guide">
+    <p class="syntax-title">TypeQL at a glance</p>
+    <p class="syntax-label">Query structure</p>
+    <pre class="syntax-shape"><span class="s-clause">&lt;clause&gt;</span> &lt;statements&gt;
+<span class="s-clause">&lt;clause&gt;</span> &lt;statements&gt;
+...</pre>
+    <p class="syntax-label">Statement structure</p>
+    <p class="syntax-note">typically</p>
+    <pre class="syntax-shape">&lt;type or variable&gt; <span class="s-kw">&lt;keyword&gt;</span> &lt;type or variable&gt;;</pre>
+    <p class="syntax-label">Clause keywords</p>
+    <div class="kws"><code class="kw clause">define</code><code class="kw clause">undefine</code><code class="kw clause">redefine</code><code class="kw clause">match</code><code class="kw clause">insert</code><code class="kw clause">put</code><code class="kw clause">update</code><code class="kw clause">delete</code><code class="kw clause">fetch</code><code class="kw clause">select</code><code class="kw clause">reduce</code><code class="kw clause">sort</code><code class="kw clause">offset</code><code class="kw clause">limit</code><code class="kw clause">with</code></div>
+    <p class="syntax-label">Schema keywords</p>
+    <div class="kws"><code class="kw kind">entity</code><code class="kw kind">relation</code><code class="kw kind">attribute</code><code class="kw stmt">sub</code><code class="kw stmt">owns</code><code class="kw stmt">relates</code><code class="kw stmt">plays</code><code class="kw stmt">value</code><code class="kw stmt">as</code><code class="kw ann">@abstract</code><code class="kw ann">@key</code><code class="kw ann">@unique</code><code class="kw ann">@card</code><code class="kw ann">@values</code><code class="kw ann">@range</code><code class="kw ann">@regex</code></div>
+    <p class="syntax-label">Data keywords</p>
+    <div class="kws"><code class="kw stmt">isa</code><code class="kw stmt">isa!</code><code class="kw stmt">has</code><code class="kw stmt">links</code><code class="kw stmt">is</code><code class="kw stmt">iid</code><code class="kw stmt">let</code><code class="kw stmt">contains</code><code class="kw stmt">like</code><code class="kw stmt">not</code><code class="kw stmt">or</code><code class="kw stmt">try</code></div>
+  </aside>
+
   <!-- ================================================================== SETUP -->
   <section id="setup">
     <h2>Setup</h2>

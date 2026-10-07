@@ -270,3 +270,36 @@ table.data td.placeholder { color: var(--muted); font-style: italic; }
   .help-send { height: 42px; }
   .help-status { grid-column: 1 / -1; }
 }
+
+/* TypeQL syntax guide: the Studio highlighting colours, blended toward the background so it stays quiet.
+   Pinned to the left on wide screens, in the page flow (after the contents) on narrower ones. */
+.syntax {
+  --quiet: 62%;
+  margin: 16px 0 0; padding: 14px; font-size: 13px; color: var(--muted);
+  border: 1px solid var(--line); border-radius: 12px;
+}
+.syntax p { margin: 0; }
+.syntax-title { font-weight: 600; color: var(--color-grey); }
+.syntax .syntax-label { margin: 14px 0 6px; font-size: 11px; letter-spacing: .06em; text-transform: uppercase; }
+.syntax .syntax-note { margin-bottom: 2px; font-size: 12px; }
+.syntax-shape {
+  margin: 0; padding: 0; font: 12px/1.55 var(--code-font); white-space: pre-wrap;
+  color: color-mix(in srgb, var(--prism-white) var(--quiet), var(--bg));
+}
+.syntax .s-clause, .syntax .kw.clause { color: color-mix(in srgb, var(--prism-pink) var(--quiet), var(--bg)); }
+.syntax .s-kw, .syntax .kw.stmt { color: color-mix(in srgb, var(--prism-purple) var(--quiet), var(--bg)); }
+.syntax .kw.kind { color: color-mix(in srgb, var(--prism-cyan) var(--quiet), var(--bg)); font-style: italic; }
+.syntax .kw.ann { color: color-mix(in srgb, var(--prism-orange) var(--quiet), var(--bg)); }
+.kws { display: flex; flex-wrap: wrap; gap: 5px; }
+.kws .kw {
+  font: 12px/1.4 var(--code-font); padding: 2px 8px; border-radius: 999px;
+  border: 1px solid var(--line); background: transparent;
+}
+
+@media (min-width: 1580px) {
+  body { padding-left: 300px; }
+  .syntax {
+    position: fixed; top: 24px; left: 24px; width: 260px; margin: 0;
+    max-height: calc(100vh - 48px); overflow-y: auto;
+  }
+}
