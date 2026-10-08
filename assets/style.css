@@ -228,50 +228,6 @@ table.data td.repeated-3 { color: var(--prism-orange); }
 table.data td.placeholder { color: var(--muted); font-style: italic; }
 .excerpt-note { color: var(--muted); font-size: 13px; margin: 0 0 14px; }
 
-/* "Questions or help?" box, always open and fixed to the viewport:
-   beside the content on wide screens, a compact bar along the bottom on narrow ones */
-.help { position: fixed; z-index: 10; }
-.help-panel {
-  background: var(--card); border: 1px solid var(--line); border-radius: 12px;
-  padding: 14px; box-shadow: 0 8px 28px rgba(0, 0, 0, 0.35);
-  display: grid; gap: 10px;
-}
-.help-title { font-size: 15px; }
-.help-panel label { display: grid; gap: 4px; font-size: 14px; }
-.help-label i { color: var(--muted); font-style: normal; }
-.help-panel input, .help-panel textarea {
-  font: inherit; font-size: 14px; color: var(--fg); background: var(--code-bg);
-  border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; resize: vertical;
-}
-.help-panel input:focus, .help-panel textarea:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
-.help-send {
-  font: inherit; font-weight: 600; cursor: pointer; color: var(--color-black);
-  background: var(--accent); border: none; border-radius: 8px; padding: 9px 12px;
-}
-.help-send:disabled { opacity: .6; cursor: wait; }
-.help-status { margin: 0; font-size: 13px; color: var(--muted); }
-.help-status:empty { display: none; }
-
-/* wide screens: bottom-right, in a column the page content leaves free */
-@media (min-width: 1240px) {
-  body { padding-right: 330px; }
-  .help { bottom: 24px; right: 24px; width: 290px; }
-}
-
-/* narrow screens: compact bar pinned to the bottom (message + send only) */
-@media (max-width: 1239px) {
-  body { padding-bottom: 134px; }
-  .help { left: 0; right: 0; bottom: 0; }
-  .help-panel {
-    border-radius: 0; border-width: 1px 0 0; padding: 10px 16px;
-    grid-template-columns: 1fr auto; align-items: end; gap: 6px 10px;
-  }
-  .help-panel .help-title, .help-panel .help-name, .help-panel .help-label { display: none; }
-  .help-message textarea { height: 84px; resize: none; }
-  .help-send { height: 42px; }
-  .help-status { grid-column: 1 / -1; }
-}
-
 /* TypeQL syntax guide: the Studio highlighting colours, blended toward the background so it stays quiet.
    Pinned to the left on wide screens, in the page flow (after the contents) on narrower ones. */
 .syntax {
@@ -297,7 +253,7 @@ table.data td.placeholder { color: var(--muted); font-style: italic; }
   border: 1px solid var(--line); background: transparent;
 }
 
-@media (min-width: 1580px) {
+@media (min-width: 1280px) {
   body { padding-left: 300px; }
   .syntax {
     position: fixed; top: 24px; left: 24px; width: 260px; margin: 0;
