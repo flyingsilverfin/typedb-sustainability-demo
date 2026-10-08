@@ -319,7 +319,7 @@
       <div class="body">
         <ul>
           <li><b>In a relational table</b>, the roles survive only as foreign-key column names, the optional refiner becomes a nullable column, and "exactly one mill" has to be enforced in application code or triggers.</li>
-          <li><b>In a graph database</b>, edges connect only two nodes. Chaining edges (mill → refinery → exporter → importer) invents connections: in this dataset, following hops gives 102 mill–importer pairs, but only 63 appear in a real flow. Making each flow a node of its own keeps the facts, but nothing enforces its roles or their cardinalities.</li>
+          <li><b>In a graph database</b>, edges connect only two nodes. Chaining edges (mill → refinery → exporter → importer) invents connections: in this dataset, following hops gives 102 mill–importer pairs, but only 63 appear in a real flow. Making each flow a node of its own keeps the facts, but nothing enforces its roles or their cardinalities, and nothing retains the semantic distinction between what is an entity node versus a relation node.</li>
         </ul>
         <p>In TypeDB the seven-way relation is stored, typed and constrained as it is.</p>
       </div>
