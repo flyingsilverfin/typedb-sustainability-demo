@@ -1,0 +1,12 @@
+define
+
+attribute company_name, value string;
+
+entity company,
+  owns company_name @key,
+  plays ownership:owner,
+  plays ownership:owned;
+
+relation ownership,
+  relates owner,
+  relates owned;

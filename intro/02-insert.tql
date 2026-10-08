@@ -1,0 +1,4 @@
+insert
+  $parent isa company, has company_name "LOUIS DREYFUS";
+  $child isa company, has company_name "LDC EAST INDONESIA";
+  ownership (owner: $parent, owned: $child);

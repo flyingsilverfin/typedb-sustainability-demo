@@ -304,3 +304,21 @@ table.data td.placeholder { color: var(--muted); font-style: italic; }
     max-height: calc(100vh - 48px); overflow-y: auto;
   }
 }
+
+/* standalone tutorial: intro concepts, per-step notes and doc links */
+.hero p.path { margin-top: 14px; font-size: 15px; }
+.concepts { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; margin: 14px 0; }
+.concepts div { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; }
+.concepts b { display: block; font-size: 17px; margin-bottom: 4px; }
+.concepts span { color: var(--color-grey); font-size: 15px; }
+.c-ent { color: var(--accent); }
+.c-rel { color: var(--color-secondary-pink); }
+.c-att { color: var(--link); }
+table.map { border-collapse: collapse; font-size: 14px; margin: 4px 0 10px; }
+table.map th, table.map td { border-bottom: 1px solid var(--line); padding: 6px 12px 6px 0; text-align: left; vertical-align: top; }
+table.map th { color: var(--muted); font-weight: 600; }
+.note { color: var(--muted); font-size: 14px; }
+ul.new { margin: 10px 0 0; padding-left: 20px; max-width: 720px; }
+ul.new li { margin: 4px 0; }
+.learn { color: var(--muted); font-size: 14px; margin: 10px 0 0; }
+ul.columns li, ul.next li { margin: 4px 0; }

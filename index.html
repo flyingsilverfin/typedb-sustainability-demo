@@ -3,29 +3,32 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Executable ER Models with TypeDB</title>
-  <meta name="description" content="ER 2026 tutorial: building an executable entity-relationship model of a palm oil supply chain in TypeDB.">
+  <title>Learn TypeDB: model a real supply chain</title>
+  <meta name="description" content="A hands-on TypeDB tutorial: model a real palm oil supply chain as a TypeDB schema, load the data and query it. First presented at ER 2026.">
   <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
 <div class="page">
 
   <header class="hero">
-    <p class="eyebrow">ER 2026 · St. John's · Tutorial · Wed 7 Oct</p>
-    <h1>Building Executable Entity-Relationship Models</h1>
-    <p>We model a real palm oil supply chain, from Indonesian districts and mills to EU importers, directly as a TypeDB schema, then load and query it. Everything you need to follow along is on this page.</p>
-    <p class="slides-link"><a href="slides.html" target="_blank" rel="noopener">View the slides →</a></p>
+    <p class="eyebrow">TypeDB tutorial · First presented at ER 2026</p>
+    <h1>Learn TypeDB by modelling a real supply chain</h1>
+    <p>Starting from real data on palm oil trade, from Indonesian districts and mills to EU importers, you'll design a TypeDB schema step by step, load the data and query it. No TypeDB experience needed. If you know entity-relationship modelling, you'll feel at home.</p>
+    <p class="path"><b>The path:</b> <a href="#basics">TypeDB basics</a> → <a href="#data">the data</a> → <a href="#setup">setup</a> → <a href="#model">build the model</a> → <a href="#load">load</a> → <a href="#queries">query</a> → <a href="#next">where next</a></p>
+    <p class="slides-link"><a href="slides.html" target="_blank" rel="noopener">Slides from the ER 2026 tutorial →</a></p>
   </header>
 
   <nav class="toc" aria-label="Sections">
+    <a href="#basics">TypeDB basics</a>
+    <a href="#data">The data</a>
     <a href="#setup">Setup</a>
     <a href="#places">1 · Places</a>
     <a href="#companies">2 · Mills, refineries, exporters</a>
     <a href="#commodities">3 · Commodities</a>
     <a href="#trade-flows">4 · Trade flows</a>
-    <a href="#full-model">Full model</a>
-    <a href="#data">Data</a>
-    <a href="#queries">Querying</a>
+    <a href="#load">Load</a>
+    <a href="#queries">Query</a>
+    <a href="#next">Where next</a>
   </nav>
 
   <aside class="syntax" aria-label="TypeQL syntax guide">
@@ -45,156 +48,68 @@
     <div class="kws"><code class="kw stmt">isa</code><code class="kw stmt">isa!</code><code class="kw stmt">has</code><code class="kw stmt">links</code><code class="kw stmt">is</code><code class="kw stmt">iid</code><code class="kw stmt">let</code><code class="kw stmt">contains</code><code class="kw stmt">like</code><code class="kw stmt">not</code><code class="kw stmt">or</code><code class="kw stmt">try</code></div>
   </aside>
 
-  <!-- ================================================================== SETUP -->
-  <section id="setup">
-    <h2>Setup</h2>
-    <p class="lead">You need a TypeDB server and a web browser.</p>
-    <ol class="setup">
-      <li>
-        <b>Set up a TypeDB server</b>, either:
-        <ul>
-          <li>locally, with the <a href="https://typedb.com/docs/home/install/ce/#_installer_script" target="_blank" rel="noopener">installer script</a> or <a href="https://typedb.com/docs/home/install/ce/#_docker" target="_blank" rel="noopener">Docker</a>, or</li>
-          <li>as a free cloud instance: <a href="https://cloud.typedb.com/sign-in" target="_blank" rel="noopener">cloud.typedb.com</a></li>
-        </ul>
-      </li>
-      <li>
-        <b>Note the address, username and password</b>
-        <ul>
-          <li>Local: <code>http://localhost:8000</code>, <code>admin</code>, <code>password</code> by default</li>
-          <li>Cloud: copy them from the cloud dashboard</li>
-        </ul>
-      </li>
-      <li>
-        <b>Connect TypeDB Studio</b>
-        <ul>
-          <li>Open <a href="https://studio.typedb.com" target="_blank" rel="noopener">studio.typedb.com</a></li>
-          <li>Connect (at the top) with your credentials</li>
-          <li>Create a new, empty database</li>
-        </ul>
-      </li>
-    </ol>
-    <p class="ready">Ready to go!</p>
-  </section>
+  <!-- ================================================================== BASICS -->
+  <section id="basics">
+    <h2>TypeDB in five minutes</h2>
+    <p class="lead">TypeDB is a database whose schema is a conceptual model. You describe your domain with entities, relations and attributes. TypeDB stores data in exactly those terms, checks every query against them, and enforces their constraints.</p>
 
-  <!-- ================================================================== TUTORIAL -->
-  <h2>The model</h2>
-
-  <!-- 1. Places -->
-  <section id="places" class="step">
-    <h3>1 · Initial definitions: places</h3>
-    <div class="step-body">
-    <p>Reading the header and a first row, the easiest things to model are the places: the country, the province and the <i>kabupaten</i> (district) the palm oil comes from.</p>
-    <div data-csv="data/palm_kaltim_eu_2022_demo.csv"
-         data-columns="country_of_production,province_of_production,kabupaten_of_production,country_of_first_import"
-         data-rows="kabupaten_of_production=BERAU|kabupaten_of_production=PASER|kabupaten_of_production=KUTAI TIMUR"></div>
-    <figure class="diagram" data-svg="diagrams/places.svg">
-      <figcaption>Three kinds of place, each identified by its name (underlined = key), under an abstract <i>place</i> (dashed). Every <i>*_name</i> attribute is a subtype of one <i>name</i> attribute; ER has no notation for that, so it isn't drawn.</figcaption>
-    </figure>
-    <details class="reveal">
-      <summary>Places in TypeQL <span class="hint">snippet 1</span></summary>
-      <div class="body"><div data-code="schema/01-places.tql"></div></div>
-    </details>
-
-    <h4>Places contain places</h4>
-    <p>Presumably the places nest: a kabupaten lies in a province, which lies in a country.</p>
-    <figure class="diagram" data-svg="diagrams/places-containment.svg">
-      <figcaption>One <i>containment</i> relation type, drawn once for each pair it connects. A province is a child of its country and a parent of its kabupaten.</figcaption>
-    </figure>
-    <details class="reveal">
-      <summary>Places hierarchy in TypeQL <span class="hint">snippet 2</span></summary>
-      <div class="body"><div data-code="schema/02-places-containment.tql"></div></div>
-    </details>
+    <h3>Three kinds of type</h3>
+    <div class="concepts">
+      <div><b class="c-ent">Entities</b><span>Things that exist on their own: a company, a mill, a country.</span></div>
+      <div><b class="c-rel">Relations</b><span>Connections between things, where each participant plays a named <i>role</i>. An ownership has an <i>owner</i> and an <i>owned</i>. A relation can have any number of roles and can own attributes itself.</span></div>
+      <div><b class="c-att">Attributes</b><span>Typed values, like a name, a volume or a date, owned by entities and relations.</span></div>
     </div>
-  </section>
-
-  <!-- 2. Companies and facilities -->
-  <section id="companies" class="step">
-    <h3>2 · Mills, refineries, exporters</h3>
-    <div class="step-body">
-    <p>The next columns are harder: the same names turn up as a mill's group, a refinery, an exporter and an importer. Is a <code>refinery_group</code> a different kind of thing from an <code>exporter_group</code>?</p>
-    <div data-csv="data/palm_kaltim_eu_2022_demo.csv"
-         data-columns="mill,mill_group,refinery,refinery_group,exporter,exporter_group,importer,importer_group"
-         data-rows="mill=AGRI EASTBORNEO KENCANA|mill=HARAPAN RIMBA RAYA (SEI KEDANG)|mill=BORNEO BHAKTI SEJAHTERA|mill=DWIWIRA LESTARI JAYA&amp;refinery=NOT REFINED"></div>
-    <p class="excerpt-note">A few real rows (scroll sideways for more columns). Coloured: a name that appears more than once in the same row, each name in its own colour. <i>NOT REFINED</i> marks crude palm oil.</p>
-
-    <h4>Option 1: one entity type per column</h4>
-    <figure class="diagram" data-svg="diagrams/option-1.svg">
-      <figcaption>Taking the CSV header literally: six entity types, each with its own name.</figcaption>
-    </figure>
+    <p>Types can specialise other types (<code>sub</code>), and an <code>@abstract</code> type has no instances of its own. A query for a supertype automatically finds instances of all its subtypes. That's why this model is called <b>PERA</b>: the <i>polymorphic</i> entity-relation-attribute model.</p>
     <details class="reveal">
-      <summary>Option 1 in TypeQL <span class="hint">for discussion only, don't run it alongside option 2</span></summary>
-      <div class="body"><div data-code="schema/03a-option-1-separate-types.tql"></div></div>
+      <summary>Coming from entity-relationship (ER) modelling? <span class="hint">how Chen's concepts map to TypeDB</span></summary>
+      <div class="body">
+        <table class="map">
+          <tr><th>Chen's ER model</th><th>TypeDB</th></tr>
+          <tr><td>entity set</td><td><code>entity</code> type</td></tr>
+          <tr><td>relationship set</td><td><code>relation</code> type</td></tr>
+          <tr><td>role (<i>r</i>/<i>e</i>)</td><td><code>relates</code> on the relation, <code>plays</code> on the player</td></tr>
+          <tr><td>value set</td><td><code>attribute</code> type with a value type (<code>string</code>, <code>integer</code>, …)</td></tr>
+          <tr><td>attribute, a function E → V</td><td><code>owns</code></td></tr>
+          <tr><td>relationship attribute</td><td>a relation that <code>owns</code> an attribute</td></tr>
+          <tr><td>subset entity sets</td><td><code>sub</code></td></tr>
+          <tr><td>participation, keys, value constraints</td><td><code>@card</code>, <code>@key</code>, <code>@values</code>, <code>@range</code>, <code>@regex</code></td></tr>
+        </table>
+        <p>Unlike most ER implementations, nothing is translated away: relations keep their roles and identity, n-ary relations stay n-ary, and subtypes stay subtypes.</p>
+      </div>
     </details>
 
-    <h4>Option 2: companies and facilities</h4>
-    <p>The data sheet says each <code>*_group</code> column "groups the [X] column into parent companies where applicable". So there are really only <b>companies</b> and <b>facilities</b> (mills and refineries), linked by <b>ownership</b>, and <i>exporter</i> is a role a company plays, not a kind of company.</p>
-    <figure class="diagram" data-svg="diagrams/option-2.svg">
-      <figcaption>Dashed boxes = abstract types: <i>legal_entity</i> generalises companies and facilities. <i>mill_name</i> and <i>refinery_name</i> are both subtypes of <i>facility_name</i> (not drawn). The dashed <i>owned</i> line is added in snippet 4.</figcaption>
-    </figure>
-    <details class="reveal">
-      <summary>Option 2 in TypeQL <span class="hint">snippet 3</span></summary>
-      <div class="body"><div data-code="schema/03b-option-2-companies-facilities.tql"></div></div>
-    </details>
+    <h3>Schema, then data</h3>
+    <p>A <b>schema</b> declares the types and how they connect: which attributes a type <code>owns</code>, which roles a relation <code>relates</code>, which roles a type <code>plays</code>. Annotations such as <code>@key</code> and <code>@card</code> add constraints. Here is a tiny schema for companies owning companies:</p>
+    <div data-code="intro/01-define.tql"></div>
+    <p><b>Data</b> is instances of those types. Each instance is created with <code>isa</code>, given attributes with <code>has</code>, and linked into relations through roles:</p>
+    <div data-code="intro/02-insert.tql"></div>
+    <p>A <code>match</code> query describes a pattern, and TypeDB returns every way the data fits it. This one returns one answer, LOUIS DREYFUS owning LDC EAST INDONESIA:</p>
+    <div data-code="intro/03-match.tql"></div>
+    <p class="note">You don't need to run these three. The tutorial below builds a fuller version of the same schema.</p>
 
-    <h4>Companies owning companies</h4>
-    <p>In some rows <code>LDC EAST INDONESIA</code> is both the refinery and the exporter, and <code>LOUIS DREYFUS</code> is the refinery's group.</p>
-    <div data-csv="data/palm_kaltim_eu_2022_demo.csv"
-         data-columns="mill,refinery,refinery_group,exporter,exporter_group"
-         data-rows="mill=DWIWIRA LESTARI JAYA&amp;refinery=LDC EAST INDONESIA"></div>
-    <p>We read this as: the company <i>LDC EAST INDONESIA</i> owns the refinery of the same name and handles exports, and <i>LOUIS DREYFUS</i> is its parent company. So companies need to be ownable by other companies too.</p>
-    <details class="reveal">
-      <summary>Ownership extension <span class="hint">snippet 4</span></summary>
-      <div class="body"><div data-code="schema/04-company-ownership.tql"></div></div>
-    </details>    </div>
-  </section>
+    <h3>The schema is enforced</h3>
+    <ul>
+      <li><b>Queries are type-checked before they run.</b> If no data could ever match a query (say, a country playing a role only mills can play), you get an error, not a silent empty result.</li>
+      <li><b>Writes are checked against the schema.</b> Constraints like <code>@key</code> and <code>@card</code> are checked by the time a transaction commits, so data that breaks them never gets in.</li>
+    </ul>
 
-  <!-- 3. Commodities -->
-  <section id="commodities" class="step">
-    <h3>3 · Commodities</h3>
-    <div class="step-body">
-    <p>The data has two commodities, <code>PALM OIL</code> and <code>REFINED PALM OIL</code>. How would you model them?</p>
-    <div class="options">
-      <div><b>a)</b> one entity type with an attribute</div>
-      <div><b>b)</b> two independent entity types</div>
-      <div><b>c)</b> one abstract type with two subtypes</div>
-    </div>
-    <details class="reveal">
-      <summary>Option a) in TypeQL <span class="hint">snippet 5</span></summary>
-      <div class="body"><div data-code="schema/05a-commodities.tql"></div></div>
-    </details>
-    <div class="callout"><b>Challenge:</b> option a) allows at most two commodity instances, because the name is a key restricted to two values. How would you get the same guarantee with option c)?</div>
-    <details class="reveal">
-      <summary>Challenge: option c) in TypeQL <span class="hint">one possible answer</span></summary>
-      <div class="body"><div data-code="schema/05c-commodities-subtypes-challenge.tql"></div></div>
-    </details>    </div>
-  </section>
-
-  <!-- 4. Trade flows -->
-  <section id="trade-flows" class="step">
-    <h3>4 · Trade flows</h3>
-    <div class="step-body">
-    <p>Each row of the data is one trade flow linking a district, a mill, sometimes a refinery (crude palm oil isn't refined), an exporter, an importer, a destination country and a commodity. How would you model the flow itself?</p>
-    <figure class="diagram" data-svg="diagrams/trade-flow.svg">
-      <figcaption>One 6- or 7-way relationship. Dashed line = optional role. <i>company</i> plays two roles: exporter and importer.</figcaption>
-    </figure>
-    <details class="reveal">
-      <summary>Trade flow in TypeQL <span class="hint">snippet 6</span></summary>
-      <div class="body"><div data-code="schema/06-trade-flow.tql"></div></div>
-    </details>    </div>
-  </section>
-
-  <!-- Full model -->
-  <section id="full-model">
-    <h2>Full model</h2>
-    <p class="lead">Snippets 1–6 combined into a single <code>define</code> query. Use this if you want a clean start.</p>
-    <div data-code="schema/full-schema.tql" class="tall"></div>
+    <h3>Queries are pipelines</h3>
+    <p>A TypeQL query is a sequence of clauses, each passing its results to the next: <code>match</code> finds data, then <code>insert</code>, <code>delete</code>, <code>reduce</code> (aggregate), <code>sort</code> or <code>fetch</code> act on it. Schema changes use <code>define</code> and <code>undefine</code>. The syntax guide on this page lists the main keywords.</p>
+    <p class="learn">Learn more: <a href="https://typedb.com/docs/core-concepts/typeql/entities-relations-attributes/" target="_blank" rel="noopener">Entities, relations, attributes</a> · <a href="https://typedb.com/docs/core-concepts/typeql/schema-data/" target="_blank" rel="noopener">Schema &amp; data</a> · <a href="https://typedb.com/docs/core-concepts/typeql/query-clauses/" target="_blank" rel="noopener">Query clauses &amp; pipelines</a> · <a href="https://typedb.com/docs/academy/9-modeling-schemas/9.1-the-pera-model/" target="_blank" rel="noopener">The PERA model</a></p>
   </section>
 
   <!-- ================================================================== DATA -->
   <section id="data">
-    <h2>Data</h2>
+    <h2>The data</h2>
     <p>The data comes from <a href="https://trase.earth" target="_blank" rel="noopener">Trase</a>'s open supply-chain data: 81 real trade flows of palm oil from East Kalimantan, Indonesia, to EU countries in 2022.</p>
     <p class="cite">Benedict, J. J., Biddle, H., Gollnow, F., Heilmayr, R., Mueller, C., Ribeiro, V., &amp; Suavet, C. (2024). <i>Indonesia palm oil supply chain (2018–2022)</i> (Version 1.2) [Data set]. Trase. <a href="https://doi.org/10.48650/X83N-7M36" target="_blank" rel="noopener">https://doi.org/10.48650/X83N-7M36</a>. Licensed CC BY 4.0.</p>
+
+    <p><b>One row is one trade flow:</b> palm oil grown in a district (<i>kabupaten</i>), processed at a mill, sometimes refined, exported by one company and imported by another into an EU country. The columns fall into three groups:</p>
+    <ul class="columns">
+      <li><b>Places:</b> <code>country_of_production</code>, <code>province_of_production</code>, <code>kabupaten_of_production</code>, <code>country_of_first_import</code></li>
+      <li><b>Companies and facilities:</b> <code>mill</code>, <code>refinery</code>, <code>exporter</code>, <code>importer</code>, each with a <code>*_group</code> column for its parent company</li>
+      <li><b>The flow itself:</b> <code>product_type</code>, <code>volume</code> (tonnes), <code>fob</code> (value in USD), <code>palm_oil_deforestation_10_year_total_exposure</code> (hectares)</li>
+    </ul>
 
     <div class="facts">
       <div><b>81</b><span>trade flows (71 refined, 10 crude)</span></div>
@@ -225,18 +140,215 @@
       </div>
     </details>
 
-    <h3>Load it</h3>
-    <p>One <code>insert</code> query loads everything.</p>
+  </section>
+
+  <!-- ================================================================== SETUP -->
+  <section id="setup">
+    <h2>Setup</h2>
+    <p class="lead">You need a TypeDB server and a web browser.</p>
+    <ol class="setup">
+      <li>
+        <b>Set up a TypeDB server</b>, either:
+        <ul>
+          <li>locally, with the <a href="https://typedb.com/docs/home/install/ce/#_installer_script" target="_blank" rel="noopener">installer script</a> or <a href="https://typedb.com/docs/home/install/ce/#_docker" target="_blank" rel="noopener">Docker</a>, or</li>
+          <li>as a free cloud instance: <a href="https://cloud.typedb.com/sign-in" target="_blank" rel="noopener">cloud.typedb.com</a></li>
+        </ul>
+      </li>
+      <li>
+        <b>Note the address, username and password</b>
+        <ul>
+          <li>Local: <code>http://localhost:8000</code>, <code>admin</code>, <code>password</code> by default</li>
+          <li>Cloud: copy them from the cloud dashboard</li>
+        </ul>
+      </li>
+      <li>
+        <b>Connect TypeDB Studio</b>
+        <ul>
+          <li>Open <a href="https://studio.typedb.com" target="_blank" rel="noopener">studio.typedb.com</a></li>
+          <li>Connect (at the top) with your credentials</li>
+          <li>Create a new, empty database</li>
+        </ul>
+      </li>
+    </ol>
+    <p>In Studio, paste each query into the editor and run it. Studio's default <i>auto</i> mode works out whether a query changes the schema or the data, and commits it for you.</p>
+    <p class="learn">Learn more: <a href="https://typedb.com/docs/tools/studio/" target="_blank" rel="noopener">TypeDB Studio</a> · <a href="https://typedb.com/docs/home/install/ce/" target="_blank" rel="noopener">Installing TypeDB CE</a></p>
+    <p class="ready">Ready to go!</p>
+  </section>
+
+  <!-- ================================================================== TUTORIAL -->
+  <h2 id="model">Part 1 · Build the model</h2>
+  <p class="lead">We read the data and model it a few columns at a time. Each step shows an ER diagram first and the TypeQL behind a reveal: try writing it yourself before you look, then run each snippet in order.</p>
+
+  <!-- 1. Places -->
+  <section id="places" class="step">
+    <h3>1 · Initial definitions: places</h3>
+    <div class="step-body">
+    <p>Reading the header and a first row, the easiest things to model are the places: the country, the province and the <i>kabupaten</i> (district) the palm oil comes from.</p>
+    <div data-csv="data/palm_kaltim_eu_2022_demo.csv"
+         data-columns="country_of_production,province_of_production,kabupaten_of_production,country_of_first_import"
+         data-rows="kabupaten_of_production=BERAU|kabupaten_of_production=PASER|kabupaten_of_production=KUTAI TIMUR"></div>
+    <figure class="diagram" data-svg="diagrams/places.svg">
+      <figcaption>Three kinds of place, each identified by its name (underlined = key), under an abstract <i>place</i> (dashed). Every <i>*_name</i> attribute is a subtype of one <i>name</i> attribute; ER has no notation for that, so it isn't drawn.</figcaption>
+    </figure>
+    <details class="reveal">
+      <summary>Places in TypeQL <span class="hint">snippet 1</span></summary>
+      <div class="body"><div data-code="schema/01-places.tql"></div>
+        <ul class="new">
+          <li><code>attribute name, value string;</code> declares an attribute type and its value type. <code>country_name</code> and the other names are subtypes of <code>name</code>, so a query for <code>name</code> finds all of them.</li>
+          <li><code>entity place @abstract;</code> is a supertype with no direct instances. <code>sub place</code> makes country, province and kabupaten kinds of place.</li>
+          <li><code>owns country_name @key</code>: every country has exactly one name, and no two countries share it.</li>
+        </ul>
+        <p class="learn">Learn more: <a href="https://typedb.com/docs/academy/5-defining-schemas/5.2-defining-type-hierarchies/" target="_blank" rel="noopener">Type hierarchies</a> · <a href="https://typedb.com/docs/reference/typeql/annotations/abstract/" target="_blank" rel="noopener">@abstract</a> · <a href="https://typedb.com/docs/reference/typeql/annotations/key/" target="_blank" rel="noopener">@key</a></p>
+      </div>
+    </details>
+
+    <h4>Places contain places</h4>
+    <p>Presumably the places nest: a kabupaten lies in a province, which lies in a country.</p>
+    <figure class="diagram" data-svg="diagrams/places-containment.svg">
+      <figcaption>One <i>containment</i> relation type, drawn once for each pair it connects. A province is a child of its country and a parent of its kabupaten.</figcaption>
+    </figure>
+    <details class="reveal">
+      <summary>Places hierarchy in TypeQL <span class="hint">snippet 2</span></summary>
+      <div class="body"><div data-code="schema/02-places-containment.tql"></div>
+        <ul class="new">
+          <li><code>relation containment, relates parent, relates child</code> declares a relation and its two roles.</li>
+          <li><code>plays containment:child</code> says which types can fill a role. A province plays both roles.</li>
+          <li><code>@card</code> sets how many: each containment has exactly one parent and one child (<code>@card(1)</code>), and a place has at most one parent (<code>@card(0..1)</code>).</li>
+          <li>Running <code>define</code> on an existing type, like <code>entity country</code> here, adds to it.</li>
+        </ul>
+        <p class="learn">Learn more: <a href="https://typedb.com/docs/core-concepts/typeql/constraining-data/" target="_blank" rel="noopener">Constraining data</a> · <a href="https://typedb.com/docs/reference/typeql/annotations/card/" target="_blank" rel="noopener">@card</a></p>
+      </div>
+    </details>
+    </div>
+  </section>
+
+  <!-- 2. Companies and facilities -->
+  <section id="companies" class="step">
+    <h3>2 · Mills, refineries, exporters</h3>
+    <div class="step-body">
+    <p>The next columns are harder: the same names turn up as a mill's group, a refinery, an exporter and an importer. Is a <code>refinery_group</code> a different kind of thing from an <code>exporter_group</code>?</p>
+    <div data-csv="data/palm_kaltim_eu_2022_demo.csv"
+         data-columns="mill,mill_group,refinery,refinery_group,exporter,exporter_group,importer,importer_group"
+         data-rows="mill=AGRI EASTBORNEO KENCANA|mill=HARAPAN RIMBA RAYA (SEI KEDANG)|mill=BORNEO BHAKTI SEJAHTERA|mill=DWIWIRA LESTARI JAYA&amp;refinery=NOT REFINED"></div>
+    <p class="excerpt-note">A few real rows (scroll sideways for more columns). Coloured: a name that appears more than once in the same row, each name in its own colour. <i>NOT REFINED</i> marks crude palm oil.</p>
+
+    <h4>Option 1: one entity type per column</h4>
+    <figure class="diagram" data-svg="diagrams/option-1.svg">
+      <figcaption>Taking the CSV header literally: six entity types, each with its own name.</figcaption>
+    </figure>
+    <details class="reveal">
+      <summary>Option 1 in TypeQL <span class="hint">for discussion only, don't run it alongside option 2</span></summary>
+      <div class="body"><div data-code="schema/03a-option-1-separate-types.tql"></div></div>
+    </details>
+
+    <h4>Option 2: companies and facilities</h4>
+    <p>The data sheet says each <code>*_group</code> column "groups the [X] column into parent companies where applicable". So there are really only <b>companies</b> and <b>facilities</b> (mills and refineries), linked by <b>ownership</b>, and <i>exporter</i> is a role a company plays, not a kind of company.</p>
+    <figure class="diagram" data-svg="diagrams/option-2.svg">
+      <figcaption>Dashed boxes = abstract types: <i>legal_entity</i> generalises companies and facilities. <i>mill_name</i> and <i>refinery_name</i> are both subtypes of <i>facility_name</i> (not drawn). The dashed <i>owned</i> line is added in snippet 4.</figcaption>
+    </figure>
+    <details class="reveal">
+      <summary>Option 2 in TypeQL <span class="hint">snippet 3</span></summary>
+      <div class="body"><div data-code="schema/03b-option-2-companies-facilities.tql"></div>
+        <ul class="new">
+          <li>A two-level hierarchy: <code>mill</code> and <code>refinery</code> are kinds of <code>facility</code>, and facilities and companies are kinds of <code>legal_entity</code>.</li>
+          <li>A role a supertype plays is inherited: mills and refineries can both be <code>owned</code>.</li>
+          <li>Companies are identified by their name (<code>@key</code>). Mills and refineries simply own a name.</li>
+        </ul>
+        <p class="learn">Learn more: <a href="https://typedb.com/docs/academy/9-modeling-schemas/9.2-determining-object-types/" target="_blank" rel="noopener">Determining object types</a> · <a href="https://typedb.com/docs/academy/9-modeling-schemas/9.4-using-type-hierarchies/" target="_blank" rel="noopener">Using type hierarchies</a></p>
+      </div>
+    </details>
+
+    <h4>Companies owning companies</h4>
+    <p>In some rows <code>LDC EAST INDONESIA</code> is both the refinery and the exporter, and <code>LOUIS DREYFUS</code> is the refinery's group.</p>
+    <div data-csv="data/palm_kaltim_eu_2022_demo.csv"
+         data-columns="mill,refinery,refinery_group,exporter,exporter_group"
+         data-rows="mill=DWIWIRA LESTARI JAYA&amp;refinery=LDC EAST INDONESIA"></div>
+    <p>We read this as: the company <i>LDC EAST INDONESIA</i> owns the refinery of the same name and handles exports, and <i>LOUIS DREYFUS</i> is its parent company. So companies need to be ownable by other companies too.</p>
+    <details class="reveal">
+      <summary>Ownership extension <span class="hint">snippet 4</span></summary>
+      <div class="body"><div data-code="schema/04-company-ownership.tql"></div></div>
+    </details>    </div>
+  </section>
+
+  <!-- 3. Commodities -->
+  <section id="commodities" class="step">
+    <h3>3 · Commodities</h3>
+    <div class="step-body">
+    <p>The data has two commodities, <code>PALM OIL</code> and <code>REFINED PALM OIL</code>. How would you model them?</p>
+    <div class="options">
+      <div><b>a)</b> one entity type with an attribute</div>
+      <div><b>b)</b> two independent entity types</div>
+      <div><b>c)</b> one abstract type with two subtypes</div>
+    </div>
+    <details class="reveal">
+      <summary>Option a) in TypeQL <span class="hint">snippet 5</span></summary>
+      <div class="body"><div data-code="schema/05a-commodities.tql"></div>
+        <ul class="new">
+          <li><code>@values(...)</code> restricts an attribute to a fixed set of values, like an enum.</li>
+        </ul>
+        <p class="learn">Learn more: <a href="https://typedb.com/docs/reference/typeql/annotations/values/" target="_blank" rel="noopener">@values</a></p>
+      </div>
+    </details>
+    <div class="callout"><b>Challenge:</b> option a) allows at most two commodity instances, because the name is a key restricted to two values. How would you get the same guarantee with option c)?</div>
+    <details class="reveal">
+      <summary>Challenge: option c) in TypeQL <span class="hint">one possible answer</span></summary>
+      <div class="body"><div data-code="schema/05c-commodities-subtypes-challenge.tql"></div></div>
+    </details>    </div>
+  </section>
+
+  <!-- 4. Trade flows -->
+  <section id="trade-flows" class="step">
+    <h3>4 · Trade flows</h3>
+    <div class="step-body">
+    <p>Each row of the data is one trade flow linking a district, a mill, sometimes a refinery (crude palm oil isn't refined), an exporter, an importer, a destination country and a commodity. How would you model the flow itself?</p>
+    <figure class="diagram" data-svg="diagrams/trade-flow.svg">
+      <figcaption>One 6- or 7-way relationship. Dashed line = optional role. <i>company</i> plays two roles: exporter and importer.</figcaption>
+    </figure>
+    <details class="reveal">
+      <summary>Trade flow in TypeQL <span class="hint">snippet 6</span></summary>
+      <div class="body"><div data-code="schema/06-trade-flow.tql"></div>
+        <ul class="new">
+          <li>One relation with seven roles. Six are required (<code>@card(1)</code>) and the refiner is optional (<code>@card(0..1)</code>).</li>
+          <li>The relation owns attributes of its own: volume, deforestation exposure and value. <code>double</code> and <code>decimal</code> are numeric value types.</li>
+        </ul>
+      </div>
+    </details>
+    <details class="reveal">
+      <summary>Why not a table or a graph? <span class="hint">what other databases do with this</span></summary>
+      <div class="body">
+        <ul>
+          <li><b>In a relational table</b>, the roles survive only as foreign-key column names, the optional refiner becomes a nullable column, and "exactly one mill" has to be enforced in application code or triggers.</li>
+          <li><b>In a graph database</b>, edges connect only two nodes. Chaining edges (mill → refinery → exporter → importer) invents connections: in this dataset, following hops gives 102 mill–importer pairs, but only 63 appear in a real flow. Making each flow a node of its own keeps the facts, but nothing enforces its roles or their cardinalities.</li>
+        </ul>
+        <p>In TypeDB the seven-way relation is stored, typed and constrained as it is.</p>
+      </div>
+    </details>
+    </div>
+  </section>
+
+  <!-- Full model -->
+  <section id="full-model">
+    <h2>Full model</h2>
+    <p class="lead">Snippets 1–6 combined into a single <code>define</code> query. Use it if you skipped ahead or want a clean start: run it in a new, empty database.</p>
+    <div data-code="schema/full-schema.tql" class="tall"></div>
+  </section>
+
+  <!-- ================================================================== LOAD -->
+  <section id="load">
+    <h2>Part 2 · Load the data</h2>
+    <p>With the full schema in place, one <code>insert</code> query loads all 81 trade flows. It creates the places, companies and facilities first, binding each to a variable such as <code>$co_louis_dreyfus</code>, then uses those variables to create the containment, ownership and trade-flow relations. The whole query commits as one transaction, so if anything breaks the schema, none of it is saved.</p>
     <div data-code="data/insert-data.tql" class="tall"></div>
+    <p class="learn">Learn more: <a href="https://typedb.com/docs/academy/4-writing-data/4.1-inserting-simple-data/" target="_blank" rel="noopener">Inserting data</a> · <a href="https://typedb.com/docs/core-concepts/typedb/transactions/" target="_blank" rel="noopener">Transactions</a></p>
   </section>
 
   <!-- ================================================================== QUERIES -->
-  <h2 id="queries">Querying</h2>
-  <p class="lead">Results are for the demo data.</p>
+  <h2 id="queries">Part 3 · Query</h2>
+  <p class="lead">Each question below hides a query. Try writing it first, then open it and run it. The result counts are for this dataset.</p>
 
   <section id="q-basics" class="step">
     <h3>Pattern matching and polymorphism</h3>
     <div class="step-body">
+    <p>A query lists statements that must all be true. <code>isa facility</code> also matches every subtype of facility. <code>isa!</code> matches only the exact type, so <code>$f isa! $t</code> binds <code>$t</code> to each facility's own type.</p>
     <details class="reveal">
       <summary>Look up all countries and their names <span class="hint">7 results</span></summary>
       <div class="body"><div data-code="queries/01-countries.tql"></div></div>
@@ -249,12 +361,14 @@
       <summary>Extension: count facilities by type <span class="hint">41 mills, 6 refineries</span></summary>
       <div class="body"><div data-code="queries/02b-count-by-facility-type.tql"></div></div>
     </details>
+    <p class="learn">Learn more: <a href="https://typedb.com/docs/core-concepts/typeql/query-variables-patterns/" target="_blank" rel="noopener">Variables &amp; patterns</a> · <a href="https://typedb.com/docs/academy/3-reading-data/3.2-fetching-polymorphic-data/" target="_blank" rel="noopener">Polymorphic queries</a> · <a href="https://typedb.com/docs/reference/typeql/pipelines/reduce/" target="_blank" rel="noopener">reduce</a></p>
     </div>
   </section>
 
   <section id="q-flows" class="step">
     <h3>Trade flows</h3>
     <div class="step-body">
+    <p><code>links (role: $x)</code> matches a relation through one of its roles; you only name the roles you care about. <code>not { … }</code> excludes matches, which suits optional roles like the refiner.</p>
     <details class="reveal">
       <summary>Count trade flows by import country <span class="hint">6 countries</span></summary>
       <div class="body"><div data-code="queries/03-flows-by-import-country.tql"></div></div>
@@ -268,13 +382,14 @@
       <summary>Deforestation exposure by importer <span class="hint">one possible answer</span></summary>
       <div class="body"><div data-code="queries/05-deforestation-by-importer.tql"></div></div>
     </details>
+    <p class="learn">Learn more: <a href="https://typedb.com/docs/academy/7-understanding-query-patterns/7.2-relation-patterns/" target="_blank" rel="noopener">Relation patterns</a> · <a href="https://typedb.com/docs/reference/typeql/patterns/negations/" target="_blank" rel="noopener">Negations</a> · <a href="https://typedb.com/docs/academy/8-composing-clauses/8.2-aggregations/" target="_blank" rel="noopener">Aggregations</a></p>
     </div>
   </section>
 
   <section id="q-ownership" class="step">
     <h3>Facility ownership</h3>
     <div class="step-body">
-    <p>A facility can sit under several layers of companies. Can one query find all of a facility's owners?</p>
+    <p>A facility can sit under several layers of companies. Can one query find all of a facility's owners? A disjunction (<code>{ … } or { … }</code>) handles a fixed number of hops. A recursive function handles any number: <code>with fun</code> defines a function for this query only, and <code>let $c in owners($f)</code> calls it.</p>
     <details class="reveal">
       <summary>One or two hops, spelled out <span class="hint">LDC EAST INDONESIA and LOUIS DREYFUS</span></summary>
       <div class="body"><div data-code="queries/06-owners-one-or-two-hops.tql"></div></div>
@@ -283,6 +398,7 @@
       <summary>Any number of hops, with a recursive function <span class="hint">same answer, any depth</span></summary>
       <div class="body"><div data-code="queries/07-owners-recursive.tql"></div></div>
     </details>
+    <p class="learn">Learn more: <a href="https://typedb.com/docs/reference/typeql/patterns/disjunctions/" target="_blank" rel="noopener">Disjunctions</a> · <a href="https://typedb.com/docs/core-concepts/typeql/functions/" target="_blank" rel="noopener">Functions</a></p>
     </div>
   </section>
 
@@ -302,12 +418,14 @@
       <summary>Insert a country without a country name <span class="hint">fails at commit: @key</span></summary>
       <div class="body"><div data-code="queries/10-insert-country-without-name.tql"></div></div>
     </details>
+    <p class="learn">Learn more: <a href="https://typedb.com/docs/academy/3-reading-data/3.5-query-validation/" target="_blank" rel="noopener">Query validation</a> · <a href="https://typedb.com/docs/academy/4-writing-data/4.5-data-validation/" target="_blank" rel="noopener">Data validation</a></p>
     </div>
   </section>
 
   <section id="q-model" class="step">
     <h3>Querying the model itself</h3>
     <div class="step-body">
+    <p>The schema is queryable with the same language. Variables can stand for types as well as data, and statements like <code>relates</code>, <code>plays</code> and <code>sub</code> work in <code>match</code> too.</p>
     <details class="reveal">
       <summary>Which types play which roles in trade_flow? <span class="hint">7 results</span></summary>
       <div class="body"><div data-code="queries/11-types-playing-trade-flow-roles.tql"></div></div>
@@ -316,7 +434,22 @@
       <summary>Which legal entity types cannot own other legal entities? <span class="hint">includes legal_entity itself</span></summary>
       <div class="body"><div data-code="queries/12-legal-entities-that-cannot-own.tql"></div></div>
     </details>
+    <p class="learn">Learn more: <a href="https://typedb.com/docs/academy/3-reading-data/3.4-fetching-schema-types/" target="_blank" rel="noopener">Querying schema types</a></p>
     </div>
+  </section>
+
+  <!-- ================================================================== NEXT -->
+  <section id="next">
+    <h2>Where next</h2>
+    <p>You've built a typed, constrained model of a real supply chain, loaded it and queried it. To keep going:</p>
+    <ul class="next">
+      <li><a href="https://typedb.com/docs/academy/" target="_blank" rel="noopener">TypeDB Academy</a>: a structured course from first queries to advanced modelling.</li>
+      <li><a href="https://typedb.com/docs/learn-typedb/quickstart/" target="_blank" rel="noopener">Quickstart</a>: a short, self-contained walkthrough on a different domain.</li>
+      <li><a href="https://typedb.com/docs/guides/schema-modeling/" target="_blank" rel="noopener">Schema modeling guide</a>: modelling guidance for your own data.</li>
+      <li><a href="https://typedb.com/docs/reference/typeql/" target="_blank" rel="noopener">TypeQL reference</a>: every statement, clause and annotation.</li>
+      <li>Ask questions in the <a href="https://typedb.com/discord" target="_blank" rel="noopener">TypeDB Discord</a>.</li>
+    </ul>
+    <p>Or extend this model: add the ports of export or the sustainability commitments from the <a href="https://doi.org/10.48650/X83N-7M36" target="_blank" rel="noopener">full Trase dataset</a>, or model ownership shares as an attribute of <code>ownership</code>.</p>
   </section>
 
 

@@ -1,6 +1,6 @@
-# Building Executable ER Models with TypeDB (ER 2026 tutorial)
+# Learn TypeDB by modelling a real supply chain
 
-Materials for the ER 2026 tutorial *Building Executable Entity-Relationship Models*:
+A standalone TypeDB tutorial, first presented at ER 2026 as *Building Executable Entity-Relationship Models*:
 an executable ER model of a palm oil supply chain, built step by step in TypeDB.
 
 **Tutorial page:** served from this repository with GitHub Pages (`index.html`).
@@ -11,6 +11,7 @@ an executable ER model of a palm oil supply chain, built step by step in TypeDB.
 |---|---|
 | `index.html`, `assets/` | The tutorial web page (static, no build step) |
 | `slides.html` | The tutorial slides, exported as a single self-contained page |
+| `intro/*.tql` | The small examples in "TypeDB in five minutes" (not part of the tutorial model) |
 | `schema/01-…06-*.tql` | The schema snippets, in tutorial order (file number = snippet number) |
 | `schema/03a-…`, `schema/05c-…` | Discussion-only alternatives (not part of the final model) |
 | `schema/full-schema.tql` | **Generated**: snippets 1–6 merged into one `define` |
